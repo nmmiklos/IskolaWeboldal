@@ -1,0 +1,144 @@
+﻿@{
+    ViewData["Title"] = "Kezdőlap";
+}
+
+<section class="hero" aria-label="Kiemelt szakasz">
+    <div class="hero-left">
+        <span class="hero-kicker">Naprakész információk egy helyen</span>
+        <h2>Üdvözlünk iskolánk weboldalán!</h2>
+        <p>
+            Fedezd fel a legfrissebb híreket, eseményeket, dokumentumokat és galériákat.
+        </p>
+
+        <div class="hero-cta">
+            <button class="btn" style="background: var(--accent); color:#2b240d;">
+                Legfrissebb hírek
+            </button>
+            <button class="btn btn-ghost">Közelgő események</button>
+        </div>
+
+        <div class="hero-metrics">
+            <div class="metric"><b>12</b><span>Új bejegyzés</span></div>
+            <div class="metric"><b>58</b><span>Kép a galériában</span></div>
+            <div class="metric"><b>8</b><span>Aktív program</span></div>
+        </div>
+    </div>
+
+    <div class="hero-right">
+        <div class="hero-card">
+            <div class="hero-illustration">
+                <div class="bubble">📄</div>
+                <div class="stack">
+                    <span class="pill">📌 Érettségi</span>
+                    <span class="pill">🏫 Nyílt nap</span>
+                    <span class="pill">🏆 Versenyek</span>
+                    <span class="pill">🍽️ Menü</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="grid">
+
+
+    <div>
+
+        <section class="section" id="hirek">
+            <div class="section-h">
+                <div>
+                    <h3>Legújabb hírek</h3>
+                    <p>Iskolai aktualitások és események</p>
+                </div>
+            </div>
+
+            <div class="news">
+                <div class="news-grid">
+
+                    <article class="card">
+                        <div class="thumb">
+                            <span class="badge-date">2025.12.05</span>
+                        </div>
+                        <div class="card-body">
+                            <h4 class="card-title">Iskolai rendezvények</h4>
+                            <p class="card-desc">Rövid összefoglaló az eseményekről.</p>
+                        </div>
+                        <div class="card-actions"> 
+                            <button class="btn-small">Tovább</button>
+                            <span class="tag">📰 Hír</span>
+                        </div>
+                    </article>
+
+                    <article class="card">
+                        <div class="thumb">
+                            <span class="badge-date">2025.11.28</span>
+                        </div>
+                        <div class="card-body">
+                            <h4 class="card-title">Téli szünet</h4>
+                            <p class="card-desc">Fontos információk a szünetre.</p>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-small">Tovább</button>
+                            <span class="tag">📌 Kiemelt</span>
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+
+        <section class="section" id="galeria" style="margin-top:12px;">
+            <div class="section-h">
+                <h3>Galéria</h3>
+            </div>
+
+            <div class="gallery">
+                <div class="strip">
+                    <div class="gitem"><div class="gcap">Farsang →</div></div>
+                    <div class="gitem"><div class="gcap">Sportnap →</div></div>
+                    <div class="gitem"><div class="gcap">Ballagás →</div></div>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="section" id="dokumentumok" style="margin-top:12px;">
+            <div class="section-h">
+                <h3>Dokumentumok</h3>
+            </div>
+        </section>
+
+    </div>
+
+
+    <aside class="side">
+
+        <section class="box">
+            <div class="box-h">
+                <h4>Közelgő események</h4>
+            </div>
+            <div class="box-body">
+                <div class="event">
+                    <div class="date-square">MÁ<small>12</small></div>
+                    <div>
+                        <b>Ballagás</b>
+                        <span>2026.06.15</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="box">
+            <div class="box-h">
+                <h4>Hasznos linkek</h4>
+            </div>
+            <div class="box-body">
+                <button class="linkbtn">Felvételi tájékoztató →</button>
+                <button class="linkbtn">Heti menü →</button>
+                <button class="linkbtn">Kapcsolat →</button>
+            </div>
+        </section>
+
+    </aside>
+</div>
