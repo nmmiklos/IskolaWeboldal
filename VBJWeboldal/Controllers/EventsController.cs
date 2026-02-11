@@ -2,11 +2,11 @@
 
 namespace VBJWeboldal.Controllers
 {
+    [Route("esemenyek")]
     public class EventsController : Controller
     {
-
-        [Route("/esemenyek")]
-        public IActionResult Events()
+        [HttpGet("")]
+        public IActionResult Index()
         {
             return View();
         }

@@ -2,13 +2,10 @@
 
 namespace VBJWeboldal.Controllers
 {
+    [Route("hirek")]
     public class HirekController : Controller
     {
-        [Route("/hirek")]
-        public IActionResult News()
-        {
-            return View();
-        }
+        [HttpGet("")]
         public IActionResult Index()
         {
             return View();

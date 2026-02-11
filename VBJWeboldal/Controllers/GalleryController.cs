@@ -2,10 +2,11 @@
 
 namespace VBJWeboldal.Controllers
 {
+    [Route("galeria")]
     public class GalleryController : Controller
     {
-        [Route("/galeria")]
-        public IActionResult Gallery()
+        [HttpGet("")]
+        public IActionResult Index()
         {
             return View();
         }
