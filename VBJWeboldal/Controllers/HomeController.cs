@@ -1,22 +1,32 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using VBJWeboldal.Models;
+using Microsoft.EntityFrameworkCore;
+using VBJWeboldal.Data;
 
 namespace VBJWeboldal.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ApplicationDbContext _context;
 
-    public HomeController(ILogger<HomeController> logger)
+    // Konstruktor frissítése az adatbázis befogadására:
+    public HomeController(ApplicationDbContext context)
     {
-        _logger = logger;
+        _context = context;
     }
 
     [HttpGet("/")]
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
+        // Csak a publikált bejegyzéseket szedjük ki!
+        var publishedNews = await _context.News
+            .Where(n => n.IsPublished)
+            .OrderByDescending(n => n.PublishedAt)
+            .Take(4) // Csak a legutóbbi 4-et mutatjuk
+            .ToListAsync();
+
+        return View(publishedNews);
     }
 
     public IActionResult Privacy()

@@ -1,0 +1,43 @@
+﻿@model VBJWeboldal.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Regisztráció";
+}
+
+<div class="section">
+    <div class="section-h">
+        <h3>Regisztráció</h3>
+        <p>Új felhasználó létrehozása</p>
+    </div>
+
+    <div style="max-width: 400px; margin: 0 auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <form asp-action="Register" method="post">
+            <div asp-validation-summary="ModelOnly" style="color: red; margin-bottom: 10px;"></div>
+
+            <div style="margin-bottom: 15px;">
+                <label asp-for="FullName" style="font-weight: bold;">Teljes név</label><br />
+                <input asp-for="FullName" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" />
+                <span asp-validation-for="FullName" style="color: red; font-size: 0.85em;"></span>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label asp-for="Email" style="font-weight: bold;"></label><br />
+                <input asp-for="Email" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" />
+                <span asp-validation-for="Email" style="color: red; font-size: 0.85em;"></span>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label asp-for="Password" style="font-weight: bold;">Jelszó</label><br />
+                <input asp-for="Password" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" />
+                <span asp-validation-for="Password" style="color: red; font-size: 0.85em;"></span>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label asp-for="ConfirmPassword" style="font-weight: bold;">Jelszó megerősítése</label><br />
+                <input asp-for="ConfirmPassword" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" />
+                <span asp-validation-for="ConfirmPassword" style="color: red; font-size: 0.85em;"></span>
+            </div>
+
+            <button type="submit" class="btn" style="background: var(--accent); color:#2b240d; width: 100%;">Regisztráció</button>
+        </form>
+    </div>
+</div>
