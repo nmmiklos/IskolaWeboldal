@@ -121,7 +121,35 @@ namespace VBJWeboldal.Controllers
             // Ezt az útvonalat mentjük az adatbázisba (webes formátum)
             return "/uploads/" + uniqueFileName;
         }
+        // --- BEJEGYZÉS TÖRLÉSE (POST) ---
+        [HttpPost]
+        public async Task<IActionResult> DeleteNews(int id)
+        {
+            // Megkeressük a törlendő bejegyzést az adatbázisban
+            var news = await _context.News.FindAsync(id);
 
+            if (news != null)
+            {
+                // 1. Töröljük a fizikai képet a szerverről, ha volt hozzá feltöltve
+                if (!string.IsNullOrEmpty(news.CoverImagePath))
+                {
+                    // A "/uploads/fajlnev.jpg" webes útvonalból csinálunk fizikai útvonalat (C:\...\wwwroot\uploads\...)
+                    var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, news.CoverImagePath.TrimStart('/'));
+
+                    if (System.IO.File.Exists(imagePath))
+                    {
+                        System.IO.File.Delete(imagePath);
+                    }
+                }
+
+                // 2. Töröljük magát a bejegyzést az adatbázisból
+                _context.News.Remove(news);
+                await _context.SaveChangesAsync();
+            }
+
+            // Visszadobjuk a felhasználót az Irányítópultra
+            return RedirectToAction("Index");
+        }
         public IActionResult Images()
         {
             return Content("Ide jön majd a képek feltöltése és a galéria kezelő!");

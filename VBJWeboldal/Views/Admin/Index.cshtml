@@ -363,7 +363,11 @@
                                             }
                                         </td>
                                         <td>
-                                            <a href="/Admin/EditNews/@item.Id" style="color: var(--admin-primary); text-decoration: none; font-weight: bold;">✏️ Szerkesztés</a>
+                                            <a href="/Admin/EditNews/@item.Id" style="color: var(--admin-primary); text-decoration: none; font-weight: bold; margin-right: 15px;">✏️ Szerkesztés</a>
+
+                                            <form action="/Admin/DeleteNews/@item.Id" method="post" style="display: inline-block;" onsubmit="return confirm('Biztosan véglegesen törölni szeretnéd ezt a bejegyzést?');">
+                                                <button type="submit" style="background: none; border: none; color: #d9534f; cursor: pointer; font-weight: bold; font-size: 14px; padding: 0;">🗑️ Törlés</button>
+                                            </form>
                                         </td>
                                     </tr>
                                     </tr>
