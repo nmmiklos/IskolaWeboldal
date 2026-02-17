@@ -1,0 +1,79 @@
+﻿@model IEnumerable<VBJWeboldal.Models.ApplicationUser>
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Felhasználók Kezelése</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            padding: 40px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .btn {
+            background: #3b66b5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Regisztrált Felhasználók (Tanárok)</h2>
+            <a href="/Admin/CreateUser" class="btn">+ Új Felhasználó</a>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Név</th>
+                    <th>Email</th>
+                    <th>Regisztráció ideje</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td><strong>@user.FullName</strong></td>
+                        <td>@user.Email</td>
+                        <td>@user.CreatedAt.ToString("yyyy.MM.dd HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <br />
+        <a href="/Admin/Index" style="color: #555;">← Vissza az Irányítópultra</a>
+    </div>
+</body>
+</html>

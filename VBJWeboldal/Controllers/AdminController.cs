@@ -14,13 +14,15 @@ namespace VBJWeboldal.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        // Bővül a konstruktor:
-        public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
+        // Bővített konstruktor
+        public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
             _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;
+            _roleManager = roleManager;
         }
 
         public async Task<IActionResult> Index()
@@ -31,6 +33,7 @@ namespace VBJWeboldal.Controllers
 
         // --- ÚJ BEJEGYZÉS (GET) ---
         [HttpGet]
+        [Authorize(Roles = "Admin,Editor")]
         public IActionResult CreateNews()
         {
             // Egy üres modelt adunk át, hogy a View tudja: ez egy új bejegyzés (Id == 0)
@@ -39,6 +42,7 @@ namespace VBJWeboldal.Controllers
 
         // --- ÚJ BEJEGYZÉS MENTÉSE (POST) ---
         [HttpPost]
+        [Authorize(Roles = "Admin,Editor")]
         public async Task<IActionResult> CreateNews(News model, IFormFile? coverImage)
         {
             if (ModelState.IsValid)
@@ -62,6 +66,7 @@ namespace VBJWeboldal.Controllers
 
         // --- SZERKESZTÉS (GET) ---
         [HttpGet]
+        [Authorize(Roles = "Admin,Editor")]
         public async Task<IActionResult> EditNews(int id)
         {
             var news = await _context.News.FindAsync(id);
@@ -73,6 +78,7 @@ namespace VBJWeboldal.Controllers
 
         // --- SZERKESZTÉS MENTÉSE (POST) ---
         [HttpPost]
+        [Authorize(Roles = "Admin,Editor")]
         public async Task<IActionResult> EditNews(int id, News model, IFormFile? coverImage)
         {
             if (id != model.Id) return NotFound();
@@ -123,6 +129,7 @@ namespace VBJWeboldal.Controllers
         }
         // --- BEJEGYZÉS TÖRLÉSE (POST) ---
         [HttpPost]
+        [Authorize(Roles = "Admin,Editor")]
         public async Task<IActionResult> DeleteNews(int id)
         {
             // Megkeressük a törlendő bejegyzést az adatbázisban
@@ -150,6 +157,60 @@ namespace VBJWeboldal.Controllers
             // Visszadobjuk a felhasználót az Irányítópultra
             return RedirectToAction("Index");
         }
+
+        // --- FELHASZNÁLÓK LISTÁZÁSA ---
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Users()
+        {
+            var users = await _context.Users.ToListAsync();
+            return View(users);
+        }
+
+        // --- ÚJ FELHASZNÁLÓ LÉTREHOZÁSA (GET) ---
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public IActionResult CreateUser()
+        {
+            return View();
+        }
+
+        // --- ÚJ FELHASZNÁLÓ LÉTREHOZÁSA (POST) ---
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateUser(VBJWeboldal.ViewModels.CreateUserViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new ApplicationUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    FullName = model.FullName,
+                    CreatedAt = DateTime.Now
+                };
+
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
+                {
+                    // Jogosultság hozzárendelése (Admin, Editor vagy Reader)
+                    await _userManager.AddToRoleAsync(user, model.Role);
+
+                    // FONTOS: Nem léptetjük be az új usert (nincs SignInAsync), 
+                    // így az Admin marad bejelentkezve!
+                    return RedirectToAction("Users");
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+            return View(model);
+        }
+
+
         public IActionResult Images()
         {
             return Content("Ide jön majd a képek feltöltése és a galéria kezelő!");

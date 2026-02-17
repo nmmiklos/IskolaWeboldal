@@ -62,9 +62,18 @@
                             <a asp-controller="Pages" asp-action="Documents">📄 Dokumentumok</a>
                         </div>
                     </div>
-                    <a class="btn btn-primary" asp-controller="Account" asp-action="Login">
-                        Bejelentkezés
-                    </a>
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <a href="/Admin/Index" class="btn btn-primary">
+                            Irányítópult
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="/Account/Login" class="btn btn-ghost">
+                            Bejelentkezés
+                        </a>
+                    }
                 </div>
             </header>
 

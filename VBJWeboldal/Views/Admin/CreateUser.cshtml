@@ -1,0 +1,76 @@
+﻿@model VBJWeboldal.ViewModels.CreateUserViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Új Felhasználó Létrehozása</title>
+    <style>        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            padding: 40px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            background: #5cb85c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Új Tanár / Szerkesztő hozzáadása</h2>
+        <form asp-action="CreateUser" method="post">
+            <div asp-validation-summary="All" style="color: red; margin-bottom: 10px;"></div>
+
+            <label>Teljes név:</label>
+            <input asp-for="FullName" required />
+
+            <label>Email cím:</label>
+            <input asp-for="Email" required />
+
+            <label>Jelszó (ideiglenes):</label>
+            <input asp-for="Password" type="password" required />
+
+            <label>Jogosultság (Szerepkör):</label>
+            <select asp-for="Role" required>
+                <option value="Editor">Szerkesztő (Editor - tud bejegyzést írni)</option>
+                <option value="Admin">Adminisztrátor (Admin - mindent lát)</option>
+                <option value="Reader">Olvasó (Reader - csak belső dolgokat lát)</option>
+            </select>
+
+            <button type="submit" class="btn">Felhasználó Létrehozása</button>
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="/Admin/Users" style="color: #555;">Mégse</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

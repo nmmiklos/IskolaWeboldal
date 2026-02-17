@@ -298,13 +298,22 @@
 <body>
 
     <nav class="topbar">
-        <div class="topbar-logo">
-            🎓 Iskola Weboldal
-        </div>
-        <div></div>
+        <a href="/" style="text-decoration: none; color: white;">
+            <div class="topbar-logo">
+                🎓 Iskola Weboldal
+            </div>
+        </a>
+
         <div class="topbar-user">
             <div class="user-avatar">👤</div>
-            <span>@fullName | <a href="/Account/Logout" style="color:white; text-decoration:underline;">Kijelentkezés</a></span>
+            <span>
+                @fullName |
+                <form action="/Account/Logout" method="post" style="display: inline;">
+                    <button type="submit" style="background: none; border: none; color: white; text-decoration: underline; cursor: pointer; padding: 0; font: inherit;">
+                        Kijelentkezés
+                    </button>
+                </form>
+            </span>
         </div>
     </nav>
 
@@ -323,10 +332,15 @@
                         <div><b>képek kezelése</b></div>
                     </div>
                 </a>
-                <div class="stat-card">
-                    <div class="stat-icon dark">👤</div>
-                    <div><b>felhasználók</b></div>
-                </div>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a href="/Admin/Users" style="text-decoration: none; color: inherit; display: contents;">
+                        <div class="stat-card" style="cursor: pointer;">
+                            <div class="stat-icon dark">👤</div>
+                            <div><b>felhasználók</b></div>
+                        </div>
+                    </a>
+                }
             </div>
 
             <div class="content-grid">
@@ -363,11 +377,14 @@
                                             }
                                         </td>
                                         <td>
-                                            <a href="/Admin/EditNews/@item.Id" style="color: var(--admin-primary); text-decoration: none; font-weight: bold; margin-right: 15px;">✏️ Szerkesztés</a>
+                                            @if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+                                            {
+                                                <a href="/Admin/EditNews/@item.Id" style="color: var(--admin-primary); text-decoration: none; font-weight: bold; margin-right: 15px;">✏️ Szerkesztés</a>
 
-                                            <form action="/Admin/DeleteNews/@item.Id" method="post" style="display: inline-block;" onsubmit="return confirm('Biztosan véglegesen törölni szeretnéd ezt a bejegyzést?');">
-                                                <button type="submit" style="background: none; border: none; color: #d9534f; cursor: pointer; font-weight: bold; font-size: 14px; padding: 0;">🗑️ Törlés</button>
-                                            </form>
+                                                <form action="/Admin/DeleteNews/@item.Id" method="post" style="display: inline-block;" onsubmit="return confirm('Biztosan véglegesen törölni szeretnéd ezt a bejegyzést?');">
+                                                    <button type="submit" style="background: none; border: none; color: #d9534f; cursor: pointer; font-weight: bold; font-size: 14px; padding: 0;">🗑️ Törlés</button>
+                                                </form>
+                                            }
                                         </td>
                                     </tr>
                                     </tr>
@@ -379,7 +396,10 @@
                             </tbody>
                         </table>
                         <div style="text-align: center; margin-top: 20px;">
-                            <a href="/Admin/CreateNews" class="btn-primary" style="display:inline-block;">+ Új Bejegyzés</a>
+                            @if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+                            {
+                                <a href="/Admin/CreateNews" class="btn-primary" style="display:inline-block;">+ Új Bejegyzés</a>
+                            }
                         </div>
                     </div>
                 </div>
