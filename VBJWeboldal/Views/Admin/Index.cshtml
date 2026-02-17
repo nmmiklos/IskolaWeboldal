@@ -340,11 +340,13 @@
                                     <th>szerző</th>
                                     <th>dátum</th>
                                     <th>státusz</th>
+                                    <th>műveletek</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var item in Model)
                                 {
+                                    <tr>
                                     <tr>
                                         <td>@item.Title</td>
                                         <td>@(item.Author?.FullName ?? "Ismeretlen")</td>
@@ -356,9 +358,14 @@
                                             }
                                             else
                                             {
+
                                                 <span class="badge badge-warning">Piszkozat</span>
                                             }
                                         </td>
+                                        <td>
+                                            <a href="/Admin/EditNews/@item.Id" style="color: var(--admin-primary); text-decoration: none; font-weight: bold;">✏️ Szerkesztés</a>
+                                        </td>
+                                    </tr>
                                     </tr>
                                 }
                                 @if (!Model.Any())

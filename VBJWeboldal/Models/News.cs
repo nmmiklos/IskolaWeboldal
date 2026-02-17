@@ -20,5 +20,8 @@ namespace VBJWeboldal.Models
 
         public string? AuthorId { get; set; } // Kapcsolat a felhasználóhoz
         public ApplicationUser? Author { get; set; }
+        //képek
+        public string? CoverImagePath { get; set; }
+
     }
 }

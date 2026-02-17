@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VBJWeboldal.Data;
 using VBJWeboldal.Models;
+using Microsoft.AspNetCore.Hosting;
 
 namespace VBJWeboldal.Controllers
 {
@@ -12,48 +13,115 @@ namespace VBJWeboldal.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        // Bővül a konstruktor:
+        public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _userManager = userManager;
+            _webHostEnvironment = webHostEnvironment;
         }
 
-        // 1. Irányítópult betöltése a bejegyzésekkel
         public async Task<IActionResult> Index()
         {
-            // Lekérjük az összes bejegyzést, szerzővel együtt, legújabbal kezdve
             var newsList = await _context.News.Include(n => n.Author).OrderByDescending(n => n.PublishedAt).ToListAsync();
             return View(newsList);
         }
 
-        // 2. Új bejegyzés űrlap (GET)
+        // --- ÚJ BEJEGYZÉS (GET) ---
         [HttpGet]
         public IActionResult CreateNews()
         {
-            return View();
+            // Egy üres modelt adunk át, hogy a View tudja: ez egy új bejegyzés (Id == 0)
+            return View(new News());
         }
 
-        // 3. Új bejegyzés mentése (POST)
+        // --- ÚJ BEJEGYZÉS MENTÉSE (POST) ---
         [HttpPost]
-        public async Task<IActionResult> CreateNews(News model)
+        public async Task<IActionResult> CreateNews(News model, IFormFile? coverImage)
         {
             if (ModelState.IsValid)
             {
-                // Hozzárendeljük a bejelentkezett felhasználót szerzőként
                 var currentUser = await _userManager.GetUserAsync(User);
                 model.AuthorId = currentUser.Id;
                 model.PublishedAt = DateTime.Now;
 
+                // Kép feltöltés logikája
+                if (coverImage != null && coverImage.Length > 0)
+                {
+                    model.CoverImagePath = await UploadImageAsync(coverImage);
+                }
+
                 _context.News.Add(model);
                 await _context.SaveChangesAsync();
-
-                return RedirectToAction("Index"); // Vissza az irányítópultra
+                return RedirectToAction("Index");
             }
             return View(model);
         }
 
-        // Ideiglenes oldal a képeknek, hogy a link ne törjön el
+        // --- SZERKESZTÉS (GET) ---
+        [HttpGet]
+        public async Task<IActionResult> EditNews(int id)
+        {
+            var news = await _context.News.FindAsync(id);
+            if (news == null) return NotFound();
+
+            // Ugyanazt a CreateNews.cshtml fájlt használjuk!
+            return View("CreateNews", news);
+        }
+
+        // --- SZERKESZTÉS MENTÉSE (POST) ---
+        [HttpPost]
+        public async Task<IActionResult> EditNews(int id, News model, IFormFile? coverImage)
+        {
+            if (id != model.Id) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                var existingNews = await _context.News.FindAsync(id);
+                if (existingNews == null) return NotFound();
+
+                // Frissítjük a szöveges adatokat
+                existingNews.Title = model.Title;
+                existingNews.Content = model.Content;
+                existingNews.IsPublished = model.IsPublished;
+
+                // Ha töltött fel új képet, lecseréljük a régit
+                if (coverImage != null && coverImage.Length > 0)
+                {
+                    existingNews.CoverImagePath = await UploadImageAsync(coverImage);
+                }
+
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
+            return View("CreateNews", model);
+        }
+
+        // SEGÉDFÜGGVÉNY A KÉPFELTÖLTÉSHEZ
+        private async Task<string> UploadImageAsync(IFormFile file)
+        {
+            // wwwroot/uploads mappa létrehozása, ha nem létezik
+            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            // Egyedi fájlnév generálása, hogy ne írják felül egymást (pl. Guid + eredeti név SRC: Stackoverflow:https://stackoverflow.com/questions/1602578/c-what-is-the-fastest-way-to-generate-a-unique-filename)
+            string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
+            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+
+            // Ezt az útvonalat mentjük az adatbázisba (webes formátum)
+            return "/uploads/" + uniqueFileName;
+        }
+
         public IActionResult Images()
         {
             return Content("Ide jön majd a képek feltöltése és a galéria kezelő!");

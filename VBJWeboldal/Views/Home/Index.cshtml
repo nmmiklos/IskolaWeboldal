@@ -59,18 +59,34 @@
 
                     @foreach (var cikk in Model)
                     {
-                        <article class="card">
-                            <div class="thumb">
-                                <span class="badge-date">@cikk.PublishedAt.ToString("yyyy.MM.dd")</span>
-                            </div>
+                        <article class="card" style="display: flex; flex-direction: column; height: 100%;">
+
+                            @if (!string.IsNullOrEmpty(cikk.CoverImagePath))
+                            {
+                                <div style="height: 160px; background: url('@cikk.CoverImagePath') center / cover no-repeat; position: relative; border-bottom: 1px solid var(--line);">
+                                    <span class="badge-date">
+                                        @cikk.PublishedAt.ToString("yyyy.MM.dd")
+                                    </span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div style="padding: 16px 16px 0 16px;">
+                                    <span class="badge-date" style="position: relative; left: auto; bottom: auto; display: inline-block;">
+                                        @cikk.PublishedAt.ToString("yyyy.MM.dd")
+                                    </span>
+                                </div>
+                            }
+
                             <div class="card-body">
                                 <h4 class="card-title">@cikk.Title</h4>
-                                <p class="card-desc">@(cikk.Content.Length > 50 ? cikk.Content.Substring(0, 50) + "..." : cikk.Content)</p>
+                                <p class="card-desc">@(cikk.Content.Length > 80 ? cikk.Content.Substring(0, 80) + "..." : cikk.Content)</p>
                             </div>
-                            <div class="card-actions">
+
+                            <div class="card-actions" style="margin-top: auto; justify-content: flex-start;">
                                 <button class="btn-small">Tovább</button>
-                                <span class="tag">📰 Hír</span>
                             </div>
+
                         </article>
                     }
 

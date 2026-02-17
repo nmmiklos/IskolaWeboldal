@@ -1,12 +1,13 @@
 ﻿@model VBJWeboldal.Models.News
 @{
     Layout = null;
+	bool isEdit = Model.Id > 0; // Eldöntjük, hogy szerkesztünk-e, vagy létrehozunk egy új bejegyzést
 }
 <!DOCTYPE html>
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>Új Bejegyzés</title>
+    <title>@(isEdit ? "Bejegyzés Szerkesztése" : "Új Bejegyzés")</title>
     <style>
         body {
             font-family: Arial;
@@ -30,6 +31,7 @@
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            box-sizing: border-box;
         }
 
         .btn {
@@ -44,8 +46,13 @@
 </head>
 <body>
     <div class="card">
-        <h2>Új bejegyzés létrehozása</h2>
-        <form asp-action="CreateNews" method="post">
+        <h2>@(isEdit ? "Bejegyzés Szerkesztése" : "Új bejegyzés létrehozása")</h2>
+
+        <form asp-action="@(isEdit ? "EditNews" : "CreateNews")" method="post" enctype="multipart/form-data">
+
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CoverImagePath" />
+
             <label>Bejegyzés címe:</label>
             <input asp-for="Title" required />
 
@@ -57,6 +64,17 @@
                 <option value="true">Publikált (Megjelenik az oldalon)</option>
                 <option value="false">Piszkozat (Csak adminok látják)</option>
             </select>
+
+            <label>Borítókép (opcionális):</label>
+            <input type="file" name="coverImage" accept="image/*" />
+
+            @if (isEdit && !string.IsNullOrEmpty(Model.CoverImagePath))
+            {
+                <div style="margin-bottom: 15px;">
+                    <small>Jelenlegi kép:</small><br />
+                    <img src="@Model.CoverImagePath" alt="Jelenlegi borítókép" style="max-height: 100px; border-radius: 4px; margin-top: 5px;" />
+                </div>
+            }
 
             <button type="submit" class="btn">Mentés</button>
             <a href="/Admin/Index" style="margin-left: 10px; color: #555;">Mégse</a>

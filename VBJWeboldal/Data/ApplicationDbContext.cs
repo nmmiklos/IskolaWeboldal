@@ -4,7 +4,7 @@ using VBJWeboldal.Models;
 
 namespace VBJWeboldal.Data
 {
-    // Figyelj rá, hogy IdentityDbContext-ből származik le, és átadjuk az ApplicationUser-t!
+    //átadjuk az ApplicationUser-t
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -19,6 +19,6 @@ namespace VBJWeboldal.Data
         public DbSet<Gallery> Galleries { get; set; }
         public DbSet<Image> Images { get; set; }
 
-        // Később ide jöhet az Article és Message is a terved alapján!
+        // Később ide jöhet az Article és Message is!
     }
 }
