@@ -588,7 +588,6 @@ body.dark .thumb {
     font-weight: 750;
     border: 1px solid rgba(14,26,43,.10);
     background-color: var(--smallbg);
-    color: var(--link);
     cursor: pointer;
 }
 
