@@ -20,6 +20,7 @@
     --link: #17325f;
     --link-hover: #0f2b5c;
     --cardbg: #ffffff;
+    --smallbg: #ffffff;
 }
 
 * {
@@ -588,6 +589,7 @@ body.dark .thumb {
     border: 1px solid rgba(14,26,43,.10);
     background: rgba(15,58,122,.06);
     color: #17325f;
+    background-color: var(--smallbg);
     cursor: pointer;
 }
 
@@ -860,8 +862,11 @@ body.dark {
     --text-soft: #94a3b8;
     --link: #c7d2fe;
     --link-hover: #e0e7ff;
-    --cardbg: #caf0f8;
+    --cardbg: #2f638c;
+    --smallbg: #50b8e6;
+   /* --smallbg: #3f8db9;*/
 }
+/*teszzzzzzzzzt*/
     body.dark .date-square {
         background: rgba(245,200,76,.15);
         border-color: rgba(245,200,76,.35);
