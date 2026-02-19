@@ -1,20 +1,16 @@
 :root {
     --bg: #0b2a5b;
     --bg2: #922a0a;
-
     --card: #ffffff;
     --muted: #6b7a90;
     --text: #0e1a2b;
     --line: rgba(15, 58, 122, .12);
-
     --shadow: 0 14px 40px rgba(2, 12, 31, .18);
     --shadow2: 0 10px 26px rgba(2, 12, 31, .14);
     --radius: 18px;
     --radius2: 22px;
-
     --accent: #f5c84c;
     --accent2: #2b6cff;
-
     --success: #2fb170;
     --chip: #eaf0ff;
     --max: 1120px;
@@ -23,8 +19,8 @@
     --text-soft: #6b7a90;
     --link: #17325f;
     --link-hover: #0f2b5c;
-
-
+    --cardbg: #ffffff;
+    --smallbg: #ffffff;
 }
 
 * {
@@ -510,7 +506,7 @@ button {
     border-radius: 18px;
     border: 1px solid rgba(14,26,43,.08);
     overflow: hidden;
-    background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.92));
+    background-color: var(--cardbg);
     box-shadow: 0 12px 24px rgba(2,12,31,.06);
     transition: transform .14s ease, box-shadow .14s ease;
 }
@@ -520,9 +516,13 @@ button {
         box-shadow: 0 16px 32px rgba(2,12,31,.10);
     }
 
+body.dark .thumb {
+    background: radial-gradient(600px 200px at 30% 10%, rgba(245,200,76,.20), transparent 60%), linear-gradient(140deg, rgba(59,130,246,.18), rgba(15,23,42,.40));
+}
+
 .thumb {
     height: 116px;
-    background: radial-gradient(600px 200px at 30% 10%, rgba(245,200,76,.35), transparent 60%), linear-gradient(140deg, rgba(43,108,255,.22), rgba(15,58,122,.12));
+   
     position: relative;
 }
 
@@ -553,6 +553,7 @@ button {
 
 .card-body {
     padding: 12px 12px 12px;
+
 }
 
 .card-title {
@@ -560,6 +561,7 @@ button {
     font-weight: 780;
     font-size: 14px;
     letter-spacing: -.1px;
+
 }
 
 .card-desc {
@@ -568,6 +570,7 @@ button {
     font-size: 12px;
     line-height: 1.45;
     min-height: 34px;
+
 }
 
 .card-actions {
@@ -584,14 +587,14 @@ button {
     font-size: 12px;
     font-weight: 750;
     border: 1px solid rgba(14,26,43,.10);
-    background: rgba(15,58,122,.06);
-    color: #17325f;
+    background-color: var(--smallbg);
     cursor: pointer;
 }
 
     .btn-small:hover {
-        background: rgba(15,58,122,.09);
+        filter: brightness(0.95);
     }
+
 
 .tag {
     display: inline-flex;
@@ -858,7 +861,11 @@ body.dark {
     --text-soft: #94a3b8;
     --link: #c7d2fe;
     --link-hover: #e0e7ff;
+    --cardbg: #2f638c;
+    --smallbg: #50b8e6;
+   /* --smallbg: #3f8db9;*/
 }
+/*teszzzzzzzzzt*/
     body.dark .date-square {
         background: rgba(245,200,76,.15);
         border-color: rgba(245,200,76,.35);
