@@ -587,15 +587,15 @@ body.dark .thumb {
     font-size: 12px;
     font-weight: 750;
     border: 1px solid rgba(14,26,43,.10);
-    background: rgba(15,58,122,.06);
-    color: #17325f;
     background-color: var(--smallbg);
+    color: var(--link);
     cursor: pointer;
 }
 
     .btn-small:hover {
-        background: rgba(15,58,122,.09);
+        filter: brightness(0.95);
     }
+
 
 .tag {
     display: inline-flex;
