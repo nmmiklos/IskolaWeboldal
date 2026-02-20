@@ -19,7 +19,6 @@
             <button class="btn btn-ghost">Közelgő események</button>
         </div>
 
-        x
         <div class="hero-metrics">
             <a asp-controller="Hirek" asp-action="Index" class="metric-link">
                 <div class="metric">
@@ -87,8 +86,8 @@
 
             <div class="news">
                 <div class="news-grid">
-
-                    @foreach (var cikk in Model.FrissHirek)
+                    
+                    @foreach (var cikk in Model.FrissHirek.Take(3))
                     {
                         <article class="card" style="display: flex; flex-direction: column; height: 100%;">
 
@@ -115,7 +114,7 @@
                             </div>
 
                             <div class="card-actions" style="margin-top: auto; justify-content: flex-start;">
-                                <button class="btn-small">Tovább</button>
+                                <a asp-controller="Hirek" asp-action="Details" asp-route-id="@cikk.Id" class="btn-small">Tovább</a>
                             </div>
 
                         </article>

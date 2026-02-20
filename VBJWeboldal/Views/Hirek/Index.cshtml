@@ -6,13 +6,62 @@
 
 <div class="section">
     <div class="section-h">
-        <h3>Hírek</h3>
-        <p>Legfrissebb információk</p>
+        <div>
+            <h3>Hírek</h3>
+            <p>Legfrissebb információk az iskolai életből</p>
+        </div>
     </div>
 
     <div class="news">
-        <div class="news-grid">
-            <!-- reuse .card markup -->
+        @* A 'news-list' stílust lentebb, vagy a CSS-ben definiáljuk *@
+        <div class="news-list" style="display: flex; flex-direction: column; gap: 20px;">
+
+            @foreach (var cikk in Model.News)
+            {
+                <article class="card" style="display: flex; flex-direction: row; min-height: 200px; overflow: hidden;">
+
+                    @if (!string.IsNullOrEmpty(cikk.CoverImagePath))
+                    {
+                        <div class="card-img-left" style="flex: 0 0 300px; background: url('@cikk.CoverImagePath') center / cover no-repeat; border-right: 1px solid var(--line);">
+                        </div>
+                    }
+
+                    <div class="card-body" style="flex: 1; display: flex; flex-direction: column; padding: 20px;">
+                        <span class="badge-date" style="width: fit-content; position: relative; left: auto; bottom: auto; display: inline-block;">
+                            @cikk.PublishedAt.ToString("yyyy. MM. dd.")
+                        </span>
+
+                        <h4 class="card-title" style="font-size: 20px; margin-bottom: 12px;">@cikk.Title</h4>
+
+                        <p class="card-desc" style="font-size: 14px; color: var(--muted); margin-bottom: 20px;">
+                            @(cikk.Content.Length > 200 ? cikk.Content.Substring(0, 200) + "..." : cikk.Content)
+                        </p>
+
+                        <div class="card-actions" style="margin-top: auto; padding: 0;">
+                            <a asp-controller="Hirek" asp-action="Details" asp-route-id="@cikk.Id" class="btn-small" style="text-decoration: none; display: inline-block;">
+                                Tovább a teljes cikkhez →
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            }
+
         </div>
     </div>
 </div>
+
+<style>
+    /* Mobil nézetben egymás alá rakjuk az elemeket */
+    /*media (max-width: 768px) {
+        .card{
+        flex-direction: column !important;
+    }
+    
+    .card-img-left {
+        flex: 0 0 180px !important;
+        border-right: none !important;
+        border-bottom: 1px solid var(--line);
+    }
+
+    }*/
+</style>
