@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using VBJWeboldal.Models;
 using Microsoft.EntityFrameworkCore;
 using VBJWeboldal.Data;
+using VBJWeboldal.ViewModels;
+
+
 
 namespace VBJWeboldal.Controllers;
 
@@ -19,15 +22,44 @@ public class HomeController : Controller
     [HttpGet("/")]
     public async Task<IActionResult> Index()
     {
-        // Csak a publikált bejegyzéseket szedjük ki!
-        var publishedNews = await _context.News
-            .Where(n => n.IsPublished)
-            .OrderByDescending(n => n.PublishedAt)
-            .Take(4) // Csak a legutóbbi 4-et mutatjuk
-            .ToListAsync();
+        var model = new HomeViewModel
+        {
+            // hírek
+            FrissHirek = await _context.News
+                .Where(n => n.IsPublished)
+                .OrderByDescending(n => n.PublishedAt)
+                .Take(4)
+                .ToListAsync(),
 
-        return View(publishedNews);
+            //események
+            KozelgoEsemeny = await _context.Events
+                .Where(e => e.EventDate >= DateTime.Now)
+                .OrderBy(e => e.EventDate)
+                .Take(3)
+                .ToListAsync(),
+
+            // Galérrai
+            FrissGaleriaKep = await _context.Galleries
+                .OrderByDescending(g => g.Id)
+                .Take(6)
+                .ToListAsync(),
+
+            // szamlalok
+            HirekSzama = await _context.News
+                .Where(n => n.IsPublished)
+                .CountAsync(),
+
+            EsemenyekSzama = await _context.Events
+                .Where(e => e.EventDate >= DateTime.Now)
+                .CountAsync(),
+
+            GaleriaKepekSzama = await _context.Galleries
+                .CountAsync()
+        };
+
+        return View(model);
     }
+
 
     public IActionResult Privacy()
     {

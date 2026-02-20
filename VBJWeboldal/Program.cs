@@ -69,7 +69,7 @@ namespace VBJWeboldal
 
                 // --- AZ ELSÕ ADMIN KINEVEZÉSE ---
                 // IDE ÍRD BE AZT AZ EMAIL CÍMET, AMIVEL REGISZTRÁLTÁL:
-                var myAdminEmail = "test@email.com";
+                var myAdminEmail = "jew@jew.is";
 
                 var adminUser = await userManager.FindByEmailAsync(myAdminEmail);
                 if (adminUser != null)

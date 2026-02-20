@@ -1,4 +1,4 @@
-﻿@model IEnumerable<VBJWeboldal.Models.News>
+﻿@model VBJWeboldal.ViewModels.HomeViewModel
 
 @{
     ViewData["Title"] = "Kezdőlap";
@@ -7,35 +7,65 @@
 <section class="hero" aria-label="Kiemelt szakasz">
     <div class="hero-left">
         <span class="hero-kicker">Naprakész információk egy helyen</span>
-        <h2>Üdvözlünk iskolánk weboldalán!</h2>
+        <h2>Vak Bottyán János Katolikus Műszaki és Közgazdasági Technikum, Gimnázium és Kollégium</h2>
         <p>
             Fedezd fel a legfrissebb híreket, eseményeket, dokumentumokat és galériákat.
         </p>
 
         <div class="hero-cta">
-            <button class="btn" style="background: var(--accent); color:#2b240d;">
+            <a href="#hirek" class="btn" id="hirekBtn" style="background: var(--accent); color:#2b240d;">
                 Legfrissebb hírek
-            </button>
-            <button class="btn btn-ghost">Közelgő események</button>
-        </div>
+            </a>
+            <button id="esemenyekBtn"  class="btn btn-ghost">Közelgő események</button>
+        </div>  
 
         <div class="hero-metrics">
-            <div class="metric"><b>12</b><span>Új bejegyzés</span></div>
-            <div class="metric"><b>58</b><span>Kép a galériában</span></div>
-            <div class="metric"><b>8</b><span>Aktív program</span></div>
+            <a asp-controller="Hirek" asp-action="Index" class="metric-link">
+                <div class="metric">
+                    <b>@Model.HirekSzama</b>
+                    <span>Publikált hír</span>
+                </div>
+            </a>
+
+            <a asp-controller="Gallery" asp-action="Index" class="metric-link">
+                <div class="metric">
+                    <b>@Model.GaleriaKepekSzama</b>
+                    <span>Kép a galériában</span>
+                </div>
+            </a>
+
+            <a asp-controller="Events" asp-action="Index" class="metric-link">
+                <div class="metric">
+                    <b>@Model.EsemenyekSzama</b>
+                    <span>Közelgő esemény</span>
+                </div>
+            </a>
+
+
         </div>
     </div>
 
     <div class="hero-right">
+        <div class="search-container">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" class="hero-search" placeholder="Keresés..." />
+        </div>
         <div class="hero-card">
             <div class="hero-illustration">
-                <div class="bubble">📄</div>
-                <div class="stack">
-                    <span class="pill">📌 Érettségi</span>
-                    <span class="pill">🏫 Nyílt nap</span>
-                    <span class="pill">🏆 Versenyek</span>
-                    <span class="pill">🍽️ Menü</span>
-                </div>
+                <a asp-controller="Informations" asp-action="About" class="hero-button">
+                    <span>Iskolánkról</span>
+                </a>
+
+              
+            </div>  
+            <div class="stack">
+                <span class="pill">Felvételizőknek</span>
+                <span class="pill">Diákoknak</span>
+                <span class="pill">Órák után</span>
+                <span class="pill">Levelezés</span>
             </div>
         </div>
     </div>
@@ -54,10 +84,10 @@
                 </div>
             </div>
 
-            <div class="news">
+            <div class="news" id="hirek">
                 <div class="news-grid">
-
-                    @foreach (var cikk in Model)
+                    
+                    @foreach (var cikk in Model.FrissHirek.Take(3))
                     {
                         <article class="card" style="display: flex; flex-direction: column; height: 100%;">
 
@@ -84,7 +114,7 @@
                             </div>
 
                             <div class="card-actions" style="margin-top: auto; justify-content: flex-start;">
-                                <button class="btn-small">Tovább</button>
+                                <a asp-controller="Hirek" asp-action="Details" asp-route-id="@cikk.Id" class="btn-small">Tovább</a>
                             </div>
 
                         </article>
@@ -121,7 +151,7 @@
 
     <aside class="side">
 
-        <section class="box">
+        <section class="box" id="kozelgoEsemenyek">
             <div class="box-h">
                 <h4>Közelgő események</h4>
             </div>
@@ -141,9 +171,9 @@
                 <h4>Hasznos linkek</h4>
             </div>
             <div class="box-body">
-                <button class="linkbtn">Felvételi tájékoztató →</button>
-                <button class="linkbtn">Heti menü →</button>
-                <button class="linkbtn">Kapcsolat →</button>
+                <a class="linkbtn">Felvételi tájékoztató →</a>
+                <a class="linkbtn">Heti menü →</a>
+                <a class="linkbtn"  href="/kapcsolat">Kapcsolat →</a>
             </div>
         </section>
 

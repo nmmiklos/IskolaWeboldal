@@ -6,6 +6,8 @@
     <title>@ViewData["Title"] - Iskola Weboldal</title>
 
     <meta name="description" content="Iskola Weboldal" />
+    <link rel="icon" type="image/svg+xml" href="~/vbj-logo.png">
+    <link rel="alternate icon" type="image/x-icon" href="~/favicon.ico">
 
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
@@ -33,7 +35,7 @@
 
                 <div class="navlinks">
                     <a asp-action="Index" asp-controller="Home">
-                         Home 
+                         Kezdőlap 
                     </a>
                     <a asp-action="Index" asp-controller="Hirek">
                         Hírek
@@ -43,6 +45,9 @@
                     </a>
                     <a asp-action="Index" asp-controller="Gallery">
                         Galéria
+                    </a>
+                    <a asp-action="Timetable" asp-controller="Informations">
+                        Órarend
                     </a>
                     <a asp-action="Contact" asp-controller="Home">
                         Kapcsolat
@@ -57,9 +62,12 @@
                         </button>
 
                         <div id="menuPanel" class="menu-panel">
-                            <a asp-controller="Pages" asp-action="Schedule">📅 Órarend</a>
-                            <a asp-controller="Pages" asp-action="Cafeteria">🍽 Menza</a>
-                            <a asp-controller="Pages" asp-action="Documents">📄 Dokumentumok</a>
+                            <a asp-controller="Informations" asp-action="Timetable">Órarend</a>
+                            <a asp-controller="Informations" asp-action="Cafeteria">Menza</a>
+                            <a asp-controller="Informations" asp-action="Documents">Irattár</a>
+                            <a asp-controller="Informations" asp-action="About">Iskolánkról</a>
+                            <a asp-controller="Informations" asp-action="Education">Oktatás</a>
+                            <a asp-controller="Informations" asp-action="Spiritual">Lelki élet</a>
                         </div>
                     </div>
                     @if (User.Identity != null && User.Identity.IsAuthenticated)

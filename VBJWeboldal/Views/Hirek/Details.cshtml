@@ -1,16 +1,36 @@
-﻿@{
-    ViewData["Title"] = "Hírek";
+﻿@model VBJWeboldal.ViewModels.NewsDetailsViewModel
+@{
+    ViewData["Title"] = Model.HirItem.Title;
 }
 
-<div class="section">
-    <div class="section-h">
-        <h3>Hírek</h3>
-        <p>Legfrissebb információk</p>
-    </div>
+<div class="section" style="max-width: 900px; margin: 0 auto;">
+    
+    @if (!string.IsNullOrEmpty(Model.HirItem.CoverImagePath))
+    {
+        <div class="article-hero" style="width: 100%; height: 400px; background: url('@Model.HirItem.CoverImagePath') center / cover no-repeat; border-bottom: 1px solid var(--line);">
+        </div>
+    }
 
-    <div class="news">
-        <div class="news-grid">
-            <!-- reuse .card markup -->
+    <div class="article-content" style="padding: 40px 30px;">
+        <div style="margin-bottom: 24px;">
+            <span class="badge-date" style="position: relative; left: auto; bottom: auto; display: inline-block;">
+                @Model.HirItem.PublishedAt.ToString("yyyy. MMMM dd.")
+            </span>
+            <h2 style="font-size: 32px; color: var(--text-strong); margin-top: 16px;">@Model.HirItem.Title</h2>
+        </div>
+
+        <div class="article-body" style="line-height: 1.8; font-size: 16px; color: var(--text); white-space: pre-line;">
+            @Model.HirItem.Content
+        </div>
+
+        <hr style="margin-top: 40px; border: 0; border-top: 1px solid var(--line);" />
+
+        <div style="text-align: right; margin-top: 20px; font-style: italic; color: var(--muted);">
+            <strong>Szerző:</strong>@Model.HirItem.Author?.FullName
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <a asp-action="Index" class="btn-small" style="display: inline-block;">← Vissza a hírekhez</a>
         </div>
     </div>
 </div>
