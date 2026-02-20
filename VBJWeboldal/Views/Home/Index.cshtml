@@ -1,4 +1,4 @@
-﻿@model IEnumerable<VBJWeboldal.Models.News>
+﻿@model VBJWeboldal.ViewModels.HomeViewModel
 
 @{
     ViewData["Title"] = "Kezdőlap";
@@ -7,7 +7,7 @@
 <section class="hero" aria-label="Kiemelt szakasz">
     <div class="hero-left">
         <span class="hero-kicker">Naprakész információk egy helyen</span>
-        <h2>Üdvözlünk iskolánk weboldalán!</h2>
+        <h2>Vak Bottyán János Katolikus Műszaki és Közgazdasági Technikum, Gimnázium és Kollégium</h2>
         <p>
             Fedezd fel a legfrissebb híreket, eseményeket, dokumentumokat és galériákat.
         </p>
@@ -19,10 +19,30 @@
             <button class="btn btn-ghost">Közelgő események</button>
         </div>
 
+        x
         <div class="hero-metrics">
-            <div class="metric"><b>12</b><span>Új bejegyzés</span></div>
-            <div class="metric"><b>58</b><span>Kép a galériában</span></div>
-            <div class="metric"><b>8</b><span>Aktív program</span></div>
+            <a asp-controller="Hirek" asp-action="Index" class="metric-link">
+                <div class="metric">
+                    <b>@Model.HirekSzama</b>
+                    <span>Publikált hír</span>
+                </div>
+            </a>
+
+            <a asp-controller="Gallery" asp-action="Index" class="metric-link">
+                <div class="metric">
+                    <b>@Model.GaleriaKepekSzama</b>
+                    <span>Kép a galériában</span>
+                </div>
+            </a>
+
+            <a asp-controller="Events" asp-action="Index" class="metric-link">
+                <div class="metric">
+                    <b>@Model.EsemenyekSzama</b>
+                    <span>Közelgő esemény</span>
+                </div>
+            </a>
+
+
         </div>
     </div>
 
@@ -36,13 +56,17 @@
         </div>
         <div class="hero-card">
             <div class="hero-illustration">
-                <div class="bubble">📄</div>
-                <div class="stack">
-                    <span class="pill">📌 Érettségi</span>
-                    <span class="pill">🏫 Nyílt nap</span>
-                    <span class="pill">🏆 Versenyek</span>
-                    <span class="pill">🍽️ Menü</span>
+                <div class="bubble">
+                    <span>Iskolánkról</span>
                 </div>
+
+              
+            </div>  
+            <div class="stack">
+                <span class="pill">Felvételizőknek</span>
+                <span class="pill">Diákoknak</span>
+                <span class="pill">Órák után</span>
+                <span class="pill">Levelezés</span>
             </div>
         </div>
     </div>
@@ -64,7 +88,7 @@
             <div class="news">
                 <div class="news-grid">
 
-                    @foreach (var cikk in Model)
+                    @foreach (var cikk in Model.FrissHirek)
                     {
                         <article class="card" style="display: flex; flex-direction: column; height: 100%;">
 
