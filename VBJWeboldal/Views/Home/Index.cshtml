@@ -13,11 +13,11 @@
         </p>
 
         <div class="hero-cta">
-            <button class="btn" style="background: var(--accent); color:#2b240d;">
+            <a href="#hirek" class="btn" id="hirekBtn" style="background: var(--accent); color:#2b240d;">
                 Legfrissebb hírek
-            </button>
-            <button class="btn btn-ghost">Közelgő események</button>
-        </div>
+            </a>
+            <button id="esemenyekBtn"  class="btn btn-ghost">Közelgő események</button>
+        </div>  
 
         <div class="hero-metrics">
             <a asp-controller="Hirek" asp-action="Index" class="metric-link">
@@ -55,9 +55,9 @@
         </div>
         <div class="hero-card">
             <div class="hero-illustration">
-                <div class="bubble">
+                <a asp-controller="Informations" asp-action="About" class="hero-button">
                     <span>Iskolánkról</span>
-                </div>
+                </a>
 
               
             </div>  
@@ -84,7 +84,7 @@
                 </div>
             </div>
 
-            <div class="news">
+            <div class="news" id="hirek">
                 <div class="news-grid">
                     
                     @foreach (var cikk in Model.FrissHirek.Take(3))
@@ -151,7 +151,7 @@
 
     <aside class="side">
 
-        <section class="box">
+        <section class="box" id="kozelgoEsemenyek">
             <div class="box-h">
                 <h4>Közelgő események</h4>
             </div>
