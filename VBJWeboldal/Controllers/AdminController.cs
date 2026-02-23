@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using VBJWeboldal.Data;
 using VBJWeboldal.Models;
 using Microsoft.AspNetCore.Hosting;
+using System.Threading.Tasks;
 
 namespace VBJWeboldal.Controllers
 {
