@@ -1,118 +1,39 @@
 ﻿@model VBJWeboldal.ViewModels.CreateUserViewModel
 @{
-    Layout = null;
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Új felhasználó létrehozása";
 }
-<!DOCTYPE html>
-<html lang="hu">
-<head>
-    <meta charset="UTF-8">
-    <title>Új Felhasználó Létrehozása</title>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <style>        
-        :root {
-            --bg-color: #f4f6f9;
-            --card-bg: white;
-            --text-color: #333;
-        }
-        body {
-            font-family: Arial;
-            background: #f4f6f9;
-            padding: 40px;
-        }
+<style>
+    .card {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+</style>
+<div class="card">
+    <h2>Új Tanár / Szerkesztő hozzáadása</h2>
+    <form asp-action="CreateUser" method="post">
+        <div asp-validation-summary="All" style="color: red; margin-bottom: 10px;"></div>
 
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            max-width: 500px;
-            margin: 0 auto;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+        <label>Teljes név:</label>
+        <input asp-for="FullName" required />
 
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
+        <label>Email cím:</label>
+        <input asp-for="Email" required />
 
-        .btn {
-            background: #5cb85c;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-        }
-        /*DARK MODE*/
-        body.dark {
-            --bg-color: #0b1120;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-        }
+        <label>Jelszó (ideiglenes):</label>
+        <input asp-for="Password" type="password" required />
 
-        body {
-            background: var(--bg-color);
-            color: var(--text-color);
-            font-family: Arial;
-            padding: 40px;
-        }
+        <label>Jogosultság (Szerepkör):</label>
+        <select asp-for="Role" required>
+            <option value="Admin">Adminisztrátor (Admin - mindent lát)</option>
+            <option value="Editor">Szerkesztő (Editor - tud bejegyzést írni, de képeket nem)</option>
+            <option value="GalleryManager">Galériakezelő (GalleryManager - csak a galériát kezeli)</option>
+            <option value="Reader">Olvasó (Reader - csak belső dolgokat lát)</option>
+        </select>
 
-        .card {
-            background: var(--card-bg);
-            color: var(--text-color);
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        input, select {
-            background: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid #ccc;
-        }
-    </style>
-</head>
-<body>
-    <script>
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark');
-        }
-    </script>
-    <div class="card">
-        <h2>Új Tanár / Szerkesztő hozzáadása</h2>
-        <form asp-action="CreateUser" method="post">
-            <div asp-validation-summary="All" style="color: red; margin-bottom: 10px;"></div>
-
-            <label>Teljes név:</label>
-            <input asp-for="FullName" required />
-
-            <label>Email cím:</label>
-            <input asp-for="Email" required />
-
-            <label>Jelszó (ideiglenes):</label>
-            <input asp-for="Password" type="password" required />
-
-            <label>Jogosultság (Szerepkör):</label>
-            <select asp-for="Role" required>
-                <option value="Admin">Adminisztrátor (Admin - mindent lát)</option>
-                <option value="Editor">Szerkesztő (Editor - tud bejegyzést írni, de képeket nem)</option>
-                <option value="GalleryManager">Galériakezelő (GalleryManager - csak a galériát kezeli)</option>
-                <option value="Reader">Olvasó (Reader - csak belső dolgokat lát)</option>
-            </select>
-
-            <button type="submit" class="btn">Felhasználó Létrehozása</button>
-            <div style="text-align: center; margin-top: 15px;">
-                <a href="/Admin/Users" style="color: #555;">Mégse</a>
-            </div>
-        </form>
-    </div>
-</body>
-</html>
+        <button type="submit" class="btn">Felhasználó Létrehozása</button>
+        <div style="text-align: center; margin-top: 15px;">
+            <a href="/Admin/Users" style="color: #555;">Mégse</a>
+        </div>
+    </form>
+</div>

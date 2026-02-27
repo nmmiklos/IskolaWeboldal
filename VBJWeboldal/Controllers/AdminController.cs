@@ -275,19 +275,24 @@ namespace VBJWeboldal.Controllers
         //HEAD// --- ÓRAREND FELTÖLTÉSE (POST) ---
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UploadTimetable(IFormFile xmlFile)
+        public async Task<IActionResult> UploadTimetable(IFormFile xmlFile) // A név maradhat xmlFile a form miatt, de fájl már bármi lehet
         {
-            if (xmlFile != null && xmlFile.Length > 0 && xmlFile.FileName.EndsWith(".xml"))
+            if (xmlFile != null && xmlFile.Length > 0 &&
+               (xmlFile.FileName.EndsWith(".xml") || xmlFile.FileName.EndsWith(".xlsx")))
             {
                 string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
 
-                string filePath = Path.Combine(uploadsFolder, "timetable.xml");
+                // Kiterjesztés lekérése
+                string extension = Path.GetExtension(xmlFile.FileName).ToLower();
+                string filePath = Path.Combine(uploadsFolder, "timetable" + extension);
 
-                // Ha már létezik, felülírjuk
+                // Töröljük a korábbi órarend fájlokat (hogy ne maradjon bent egy régi .xml, ha most .xlsx-et töltünk)
+                var oldXml = Path.Combine(uploadsFolder, "timetable.xml");
+                var oldXlsx = Path.Combine(uploadsFolder, "timetable.xlsx");
+                if (System.IO.File.Exists(oldXml)) System.IO.File.Delete(oldXml);
+                if (System.IO.File.Exists(oldXlsx)) System.IO.File.Delete(oldXlsx);
+
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await xmlFile.CopyToAsync(fileStream);
@@ -296,10 +301,10 @@ namespace VBJWeboldal.Controllers
             }
             else
             {
-                TempData["ErrorMessage"] = "Kérlek egy érvényes XML fájlt tölts fel!";
+                TempData["ErrorMessage"] = "Kérlek egy érvényes XML vagy XLSX fájlt tölts fel!";
             }
 
-            return RedirectToAction("Index"); // Vagy ahova szeretnéd irányítani
+            return RedirectToAction("Index");
         }
         //Galériák listázása
         [HttpGet]

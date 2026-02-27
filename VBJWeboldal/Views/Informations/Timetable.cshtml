@@ -4,7 +4,7 @@
 
 <div class="box" style="padding: 20px;">
     <div class="box-h" style="border-bottom: 1px solid var(--line); margin-bottom: 20px; padding-bottom: 10px;">
-        <h4 style="font-size: 24px;">Heti Órarend</h4>
+        <h4 style="font-size: 24px;">Órarend</h4>
     </div>
 
     <div class="box-body">
@@ -105,30 +105,45 @@
                 ttBody.innerHTML = '';
                 const days = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek"];
 
-                // Meghatározzuk a maximális óraszámot (pl. 0-tól 7-ig)
-                const maxPeriod = lessons.length > 0 ? Math.max(...lessons.map(l => l.period)) : 0;
+                if (lessons.length === 0) return;
 
-                for (let p = 1; p <= maxPeriod; p++) {
+                // Megkeressük a legnagyobb és a legkisebb órát is!
+                const maxPeriod = Math.max(...lessons.map(l => l.period));
+                const minPeriod = Math.min(...lessons.map(l => l.period));
+
+                // Ha van 0. óra (vagy annál kisebb), onnan indulunk, ha nincs, akkor az 1. órától
+                const startPeriod = minPeriod < 1 ? minPeriod : 1;
+
+                for (let p = startPeriod; p <= maxPeriod; p++) {
                     let rowHtml = `<tr style="border-bottom: 1px solid var(--line);">`;
                     // Első oszlop: az óra sorszáma
-                    rowHtml += `<td style="padding: 15px; text-align: center; font-weight: 800; background: rgba(0,0,0,0.02); border-right: 1px solid var(--line); color: var(--accent2);">${p}.</td>`;
+                    rowHtml += `<td style="padding: 15px; text-align: center; font-weight: 800; background: rgba(0,0,0,0.02); border-right: 1px solid var(--line); color: var(--accent2); width: 60px;">${p}.</td>`;
 
-                    // Napok oszlopai
                     days.forEach(day => {
                         const cellLessons = lessons.filter(l => l.day === day && l.period === p);
-                        rowHtml += `<td style="padding: 10px; border-right: 1px solid var(--line); vertical-align: top; width: 18%;">`;
+                        rowHtml += `<td style="padding: 8px; border-right: 1px solid var(--line); vertical-align: top; width: 18.8%;">`;
 
-                        cellLessons.forEach(l => {
-                            rowHtml += `<div style="background: var(--chip); padding: 8px; border-radius: 8px; margin-bottom: 5px; border: 1px solid rgba(0,0,0,0.05); font-size: 13px;">
-                                            <div style="font-weight: 700; margin-bottom: 2px; color: var(--text-strong);">${l.subject}</div>
-                                            <div style="font-size: 11px; color: var(--muted); line-height: 1.3;">
-                                                ${currentType !== 'Class' ? '👥 ' + l.className + '<br>' : ''}
-                                                ${currentType !== 'Teacher' ? '👤 ' + l.teacher + '<br>' : ''}
-                                                📍 ${l.room}
-                                                ${l.group !== "Teljes osztály" ? '<br><i style="color:var(--accent2)">' + l.group + '</i>' : ''}
-                                            </div>
-                                        </div>`;
-                        });
+                        if (cellLessons.length > 0) {
+                            // Flexbox kártya a csoportbontásoknak
+                            rowHtml += `<div style="display: flex; background: var(--chip); border-radius: 8px; border: 1px solid rgba(0,0,0,0.05); overflow: hidden; height: 100%;">`;
+
+                            cellLessons.forEach((l, index) => {
+                                const isLast = index === cellLessons.length - 1;
+                                const borderStyle = !isLast ? `border-right: 1px solid rgba(0, 0, 0, 0.1);` : ``;
+
+                                rowHtml += `<div style="flex: 1; padding: 8px; font-size: 13px; ${borderStyle}">
+                                                <div style="font-weight: 700; margin-bottom: 2px; color: var(--text-strong);">${l.subject}</div>
+                                                <div style="font-size: 11px; color: var(--muted); line-height: 1.3;">
+                                                    ${currentType !== 'Class' ? '👥 ' + l.className + '<br>' : ''}
+                                                    ${currentType !== 'Teacher' ? '👤 ' + l.teacher + '<br>' : ''}
+                                                    📍 ${l.room}
+                                                    ${l.group && l.group !== "Teljes osztály" ? '<br><i style="color:var(--accent2); font-weight: 600;">' + l.group + '</i>' : ''}
+                                                </div>
+                                            </div>`;
+                            });
+
+                            rowHtml += `</div>`;
+                        }
 
                         rowHtml += `</td>`;
                     });
