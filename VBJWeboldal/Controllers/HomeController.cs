@@ -34,13 +34,25 @@ public class HomeController : Controller
             .OrderByDescending(d => d.UploadedAt)
             .Take(3)
             .ToListAsync();
+        // 4. Közelgõ események
+        var upcomingEvents = await _context.Events
+                                           .Where(e => e.EventDate >= DateTime.Now)
+                                           .OrderBy(e => e.EventDate)
+                                           .Take(3)
+                                           .ToListAsync();
+
 
         var viewModel = new VBJWeboldal.ViewModels.HomeViewModel
         {
             NewsList = publishedNews,
             Galleries = galleries,
-            LatestDocuments = latestDocs // <--- Ezt adjuk át
+            LatestDocuments = latestDocs, // <--- Ezt adjuk át
+
+            HirekSzama = await _context.News.CountAsync(n => n.IsPublished),
+            GaleriaKepekSzama = await _context.Galleries.SelectMany(g => g.Images).CountAsync(),
+            EsemenyekSzama = await _context.Events.CountAsync(e => e.EventDate >= DateTime.Now)
         };
+
 
         return View(viewModel);
     }
