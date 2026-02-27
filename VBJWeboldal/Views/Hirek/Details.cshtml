@@ -4,7 +4,7 @@
 }
 
 <div class="section" style="max-width: 900px; margin: 0 auto;">
-    
+
     @if (!string.IsNullOrEmpty(Model.HirItem.CoverImagePath))
     {
         <div class="article-hero" style="width: 100%; height: 400px; background: url('@Model.HirItem.CoverImagePath') center / cover no-repeat; border-bottom: 1px solid var(--line);">
@@ -23,14 +23,27 @@
             @Model.HirItem.Content
         </div>
 
+        @if (!string.IsNullOrEmpty(Model.HirItem.AttachedDocumentUrl))
+        {
+            <div style="margin-top: 30px; padding: 20px; background: rgba(43,108,255,0.05); border: 1px solid rgba(43,108,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #17325f;">📎 Kapcsolódó dokumentum</h4>
+                    <p style="margin: 0; color: var(--muted); font-size: 13px;">Kattints a gombra a megtekintéshez vagy letöltéshez.</p>
+                </div>
+
+                <a href="@Model.HirItem.AttachedDocumentUrl" target="_blank" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; text-decoration: none; border-radius: 6px;">
+                    ⬇️ @(ViewBag.AttachedDocTitle ?? "Dokumentum letöltése")
+                </a>
+            </div>
+        }
         <hr style="margin-top: 40px; border: 0; border-top: 1px solid var(--line);" />
 
         <div style="text-align: right; margin-top: 20px; font-style: italic; color: var(--muted);">
-            <strong>Szerző:</strong>@Model.HirItem.Author?.FullName
-            </div>
-        
+            <strong>Szerző:</strong> @Model.HirItem.Author?.FullName
+        </div>
+
         <div style="margin-top: 30px;">
-            <a asp-action="Index" class="btn-small" style="display: inline-block;">← Vissza a hírekhez</a>
+            <a asp-action="Index" class="btn-small" style="display: inline-block; text-decoration: none;">← Vissza a hírekhez</a>
         </div>
     </div>
 </div>
