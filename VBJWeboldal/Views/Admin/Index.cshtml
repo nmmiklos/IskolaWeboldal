@@ -373,12 +373,15 @@
                     <div class="stat-icon red">📢</div>
                     <div><b>@Model.Count() bejegyzés</b></div>
                 </div>
-                <a href="/Admin/Images" style="text-decoration: none; color: inherit; display: contents;">
-                    <div class="stat-card" style="cursor: pointer;">
-                        <div class="stat-icon blue">🖼️</div>
-                        <div><b>képek kezelése</b></div>
-                    </div>
-                </a>
+                @if (User.IsInRole("Admin") || User.IsInRole("GalleryManager"))
+                {
+                    <a href="/Admin/Galleries" style="text-decoration: none; color: inherit; display: contents;">
+                        <div class="stat-card" style="cursor: pointer;">
+                            <div class="stat-icon blue">🖼️</div>
+                            <div><b>képek kezelése</b></div>
+                        </div>
+                    </a>
+                }
                 @if (User.IsInRole("Admin"))
                 {
                     <a href="/Admin/Users" style="text-decoration: none; color: inherit; display: contents;">

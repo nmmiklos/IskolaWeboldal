@@ -58,7 +58,8 @@ namespace VBJWeboldal
                 // Behozzuk a UserManager-t is a fiókok kezeléséhez
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-                string[] roles = { "Admin", "Editor", "Reader" };
+                string[] roles = { "Admin", "Editor", "Reader", "GalleryManager" };
+
                 foreach (var role in roles)
                 {
                     if (!await roleManager.RoleExistsAsync(role))
@@ -69,7 +70,7 @@ namespace VBJWeboldal
 
                 // --- AZ ELSÕ ADMIN KINEVEZÉSE ---
                 // IDE ÍRD BE AZT AZ EMAIL CÍMET, AMIVEL REGISZTRÁLTÁL:
-                var myAdminEmail = "jew@jew.is";
+                var myAdminEmail = "admin@test.com";
 
                 var adminUser = await userManager.FindByEmailAsync(myAdminEmail);
                 if (adminUser != null)

@@ -102,8 +102,9 @@
 
             <label>Jogosultság (Szerepkör):</label>
             <select asp-for="Role" required>
-                <option value="Editor">Szerkesztő (Editor - tud bejegyzést írni)</option>
                 <option value="Admin">Adminisztrátor (Admin - mindent lát)</option>
+                <option value="Editor">Szerkesztő (Editor - tud bejegyzést írni, de képeket nem)</option>
+                <option value="GalleryManager">Galériakezelő (GalleryManager - csak a galériát kezeli)</option>
                 <option value="Reader">Olvasó (Reader - csak belső dolgokat lát)</option>
             </select>
 

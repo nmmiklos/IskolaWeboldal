@@ -211,10 +211,124 @@ namespace VBJWeboldal.Controllers
             return View(model);
         }
 
-
-        public IActionResult Images()
+        //Galériák listázása
+        [HttpGet]
+        [Authorize(Roles = "Admin,GalleryManager")]
+        public async Task<IActionResult> Galleries()
         {
-            return Content("Ide jön majd a képek feltöltése és a galéria kezelő!");
+            // Lekérjük a galériákat, és azt is, hány kép van bennük
+            var galleries = await _context.Galleries.Include(g => g.Images).ToListAsync();
+            return View(galleries);
         }
+
+        //Új Galéria (Album) létrehozása
+        [HttpPost]
+        [Authorize(Roles = "Admin,GalleryManager")]
+        public async Task<IActionResult> CreateGallery(string title)
+        {
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                var gallery = new Gallery { Title = title };
+                _context.Galleries.Add(gallery);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Galleries");
+        }
+
+        //Galéria részletei (Képek listája és feltöltés)
+        [HttpGet]
+        [Authorize(Roles = "Admin,GalleryManager")]
+        public async Task<IActionResult> GalleryDetails(int id)
+        {
+            var gallery = await _context.Galleries.Include(g => g.Images).FirstOrDefaultAsync(g => g.Id == id);
+            if (gallery == null) return NotFound();
+
+            return View(gallery);
+        }
+
+        //Képek feltöltése a Galériába
+        [HttpPost]
+        [Authorize(Roles = "Admin,GalleryManager")]
+        public async Task<IActionResult> UploadImages(int galleryId, List<IFormFile> files)
+        {
+            var gallery = await _context.Galleries.FindAsync(galleryId);
+            if (gallery == null) return NotFound();
+
+            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "gallery");
+            if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+            foreach (var file in files)
+            {
+                if (file.Length > 0)
+                {
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    // Kép mentése az adatbázisba
+                    var image = new Image
+                    {
+                        ImagePath = "/uploads/gallery/" + uniqueFileName,
+                        GalleryId = galleryId
+                    };
+                    _context.Images.Add(image);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("GalleryDetails", new { id = galleryId });
+        }
+
+        //Galéria törlése (képekkel együtt)
+        [HttpPost]
+        [Authorize(Roles = "Admin,GalleryManager")]
+        public async Task<IActionResult> DeleteGallery(int id)
+        {
+            var gallery = await _context.Galleries.Include(g => g.Images).FirstOrDefaultAsync(g => g.Id == id);
+            if (gallery != null)
+            {
+                // Fizikai fájlok törlése
+                foreach (var img in gallery.Images)
+                {
+                    var path = Path.Combine(_webHostEnvironment.WebRootPath, img.ImagePath.TrimStart('/'));
+                    if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
+                }
+
+                _context.Galleries.Remove(gallery);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Galleries");
+        }
+
+        //Egyetlen kép törlése a Galériából
+        [HttpPost]
+        [Authorize(Roles = "Admin,GalleryManager")]
+        public async Task<IActionResult> DeleteImage(int id)
+        {
+            // Megkeressük a képet az adatbázisban
+            var image = await _context.Images.FindAsync(id);
+            if (image == null) return NotFound();
+
+            int galleryId = image.GalleryId; // Eltároljuk az album ID-t a visszairányításhoz
+
+            //Fizikai fájl törlése a szerverről
+            var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, image.ImagePath.TrimStart('/'));
+            if (System.IO.File.Exists(imagePath))
+            {
+                System.IO.File.Delete(imagePath);
+            }
+
+            //Kép törlése az adatbázisból
+            _context.Images.Remove(image);
+            await _context.SaveChangesAsync();
+
+            // Visszadobjuk a felhasználót ugyanannak az albumnak a szerkesztőjébe
+            return RedirectToAction("GalleryDetails", new { id = galleryId });
+        }
+
     }
 }

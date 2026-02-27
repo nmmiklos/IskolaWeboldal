@@ -87,7 +87,7 @@
             <div class="news" id="hirek">
                 <div class="news-grid">
                     
-                    @foreach (var cikk in Model.FrissHirek.Take(3))
+                    @foreach (var cikk in Model.NewsList.Take(3))
                     {
                         <article class="card" style="display: flex; flex-direction: column; height: 100%;">
 
@@ -132,9 +132,25 @@
 
             <div class="gallery">
                 <div class="strip">
-                    <div class="gitem"><div class="gcap">Farsang →</div></div>
-                    <div class="gitem"><div class="gcap">Sportnap →</div></div>
-                    <div class="gitem"><div class="gcap">Ballagás →</div></div>
+                    @foreach (var gal in Model.Galleries)
+                    {
+                        var coverImage = gal.Images.FirstOrDefault()?.ImagePath ?? "";
+                        var bgStyle = !string.IsNullOrEmpty(coverImage)
+                        ? $"background: url('{coverImage}') center / cover no-repeat;"
+                        : "background: var(--muted);";
+
+                        <a href="/galeria/@gal.Id" class="gitem" style="@bgStyle position: relative; display: block; text-decoration: none;">
+                            <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,58,122,0.9), transparent 60%);"></div>
+                            <div class="gcap" style="color: white; z-index: 10;">
+                                <span>@gal.Title</span>
+                                <span>→</span>
+                            </div>
+                        </a>
+                    }
+                    @if (!Model.Galleries.Any())
+                    {
+                        <p style="padding: 10px; color: var(--muted);">Még nincsenek galériák.</p>
+                    }
                 </div>
             </div>
         </section>
