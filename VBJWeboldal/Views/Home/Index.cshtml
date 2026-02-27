@@ -160,6 +160,26 @@
             <div class="section-h">
                 <h3>Dokumentumok</h3>
             </div>
+
+            <div style="padding: 0 16px 16px 16px;">
+                @foreach (var doc in Model.LatestDocuments)
+                {
+                    <a href="@doc.FilePath" target="_blank" class="linkbtn">
+                        <span style="line-height: 1.4;">
+                            <strong>@doc.Title</strong><br>
+                            <small style="color: var(--muted); font-weight: normal;">
+                                @doc.FileExtension.ToUpper().Replace(".", "") • @(doc.FileSize / 1024) KB
+                            </small>
+                        </span>
+                        <span style="font-size: 18px;">⬇️</span>
+                    </a>
+                }
+
+                @if (!Model.LatestDocuments.Any())
+                {
+                    <p style="color: var(--muted); font-size: 13px; margin: 0;">Jelenleg nincsenek feltöltött publikus dokumentumok.</p>
+                }
+            </div>
         </section>
 
     </div>

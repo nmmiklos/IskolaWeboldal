@@ -22,25 +22,24 @@ public class HomeController : Controller
     [HttpGet("/")]
     public async Task<IActionResult> Index()
     {
-        //Publikált Hírek lekérése (legutóbbi 4)
-        var publishedNews = await _context.News
-            .Where(n => n.IsPublished)
-            .OrderByDescending(n => n.PublishedAt)
-            .Take(4)
+        // 1. Hírek lekérése
+        var publishedNews = await _context.News.Where(n => n.IsPublished).OrderByDescending(n => n.PublishedAt).Take(3).ToListAsync();
+
+        // 2. Galériák lekérése
+        var galleries = await _context.Galleries.Include(g => g.Images).OrderByDescending(g => g.Id).Take(3).ToListAsync();
+
+        // 3. Legújabb PUBLIKUS dokumentumok lekérése (MAX 3 DARAB)
+        var latestDocs = await _context.Documents
+            .Where(d => d.IsPublic)
+            .OrderByDescending(d => d.UploadedAt)
+            .Take(3)
             .ToListAsync();
 
-        //Galériák lekérése a borítóképekkel (legutóbbi 5)
-        var galleries = await _context.Galleries
-            .Include(g => g.Images)
-            .OrderByDescending(g => g.Id)
-            .Take(5)
-            .ToListAsync();
-
-        //Összecsomagolás a ViewModelbe
         var viewModel = new VBJWeboldal.ViewModels.HomeViewModel
         {
             NewsList = publishedNews,
-            Galleries = galleries
+            Galleries = galleries,
+            LatestDocuments = latestDocs // <--- Ezt adjuk át
         };
 
         return View(viewModel);
