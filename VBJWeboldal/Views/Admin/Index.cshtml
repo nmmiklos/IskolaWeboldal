@@ -460,6 +460,40 @@
                     </div>
                 </div>
                 <div>...</div>
+                <div class="box" style="margin-bottom: 24px;">
+                    <div class="box-h">
+                        <h4>Órarend frissítése (XML)</h4>
+                    </div>
+                    <div class="box-body" style="padding-top: 10px;">
+
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div style="background: rgba(47, 177, 112, 0.1); border: 1px solid var(--success); color: var(--success); padding: 8px 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: 600; display: inline-block;">
+                                ✅ @TempData["SuccessMessage"]
+                            </div>
+                        }
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div style="background: rgba(217, 83, 79, 0.1); border: 1px solid #d9534f; color: #d9534f; padding: 8px 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: 600; display: inline-block;">
+                                ❌ @TempData["ErrorMessage"]
+                            </div>
+                        }
+
+                        <p style="color: var(--muted); font-size: 13px; margin-bottom: 15px;">
+                            Itt töltheted fel az új órarendet tartalmazó <strong>.xml</strong> kiterjesztésű fájlt. A feltöltés azonnal felülírja a jelenlegi órarendet az oldalon.
+                        </p>
+
+                        <form method="post" enctype="multipart/form-data" asp-action="UploadTimetable" asp-controller="Admin" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+
+                            <input type="file" name="xmlFile" accept=".xml" required
+                                   style="padding: 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--cardbg); color: var(--text); flex-grow: 1; max-width: 400px;" />
+
+                            <button type="submit" class="btn btn-primary">
+                                Fájl feltöltése
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </main>
     </div>

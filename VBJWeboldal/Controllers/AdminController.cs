@@ -272,7 +272,35 @@ namespace VBJWeboldal.Controllers
             }
             return View(model);
         }
+        //HEAD// --- ÓRAREND FELTÖLTÉSE (POST) ---
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UploadTimetable(IFormFile xmlFile)
+        {
+            if (xmlFile != null && xmlFile.Length > 0 && xmlFile.FileName.EndsWith(".xml"))
+            {
+                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
 
+                string filePath = Path.Combine(uploadsFolder, "timetable.xml");
+
+                // Ha már létezik, felülírjuk
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await xmlFile.CopyToAsync(fileStream);
+                }
+                TempData["SuccessMessage"] = "Az órarend sikeresen frissítve!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Kérlek egy érvényes XML fájlt tölts fel!";
+            }
+
+            return RedirectToAction("Index"); // Vagy ahova szeretnéd irányítani
+        }
         //Galériák listázása
         [HttpGet]
         [Authorize(Roles = "Admin,GalleryManager")]
