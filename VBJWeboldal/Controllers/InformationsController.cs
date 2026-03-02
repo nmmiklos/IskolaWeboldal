@@ -4,18 +4,99 @@ using System.IO;
 using System.Xml.Linq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using VBJWeboldal.Data;
+using VBJWeboldal.Models;
 using VBJWeboldal.ViewModels;
-using ClosedXML.Excel; // EZT ADD HOZZÁ!
+using ClosedXML.Excel;
 
 namespace VBJWeboldal.Controllers
 {
     public class InformationsController : Controller
     {
         private readonly IWebHostEnvironment _env;
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public InformationsController(IWebHostEnvironment env)
+        // Injektáljuk az Adatbázist és a UserManagert is!
+        public InformationsController(
+            IWebHostEnvironment env,
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager)
         {
             _env = env;
+            _context = context;
+            _userManager = userManager;
+        }
+
+        // --- KERESÉS FUNKCIÓ (Frissített) ---
+        [HttpGet]
+        public async Task<IActionResult> Search(string q, bool searchNews, bool searchEvents, bool searchDocuments, bool searchGalleries, bool searchUsers, bool filterSubmitted = false)
+        {
+            // Ha a főoldalról jön (nincs szűrő elküldve), alapértelmezetten mindenben keressen!
+            if (!filterSubmitted)
+            {
+                searchNews = searchEvents = searchDocuments = searchGalleries = searchUsers = true;
+            }
+
+            var vm = new SearchResultsViewModel
+            {
+                SearchQuery = q ?? "",
+                SearchNews = searchNews,
+                SearchEvents = searchEvents,
+                SearchDocuments = searchDocuments,
+                SearchGalleries = searchGalleries,
+                SearchUsers = searchUsers
+            };
+
+            if (string.IsNullOrWhiteSpace(q))
+            {
+                return View(vm);
+            }
+
+            string lowerQ = q.ToLower();
+
+            // 1. Hírek
+            if (searchNews)
+            {
+                vm.NewsResults = await _context.News.Where(n => n.IsPublished && (n.Title.ToLower().Contains(lowerQ) || n.Content.ToLower().Contains(lowerQ))).OrderByDescending(n => n.PublishedAt).ToListAsync();
+            }
+
+            // 2. Események
+            if (searchEvents)
+            {
+                vm.EventResults = await _context.Events.Where(e => e.Title.ToLower().Contains(lowerQ) || e.Description.ToLower().Contains(lowerQ)).OrderBy(e => e.EventDate).ToListAsync();
+            }
+
+            // 3. Dokumentumok
+            if (searchDocuments)
+            {
+                vm.DocumentResults = await _context.Documents.Where(d => d.IsPublic && d.Title.ToLower().Contains(lowerQ)).OrderByDescending(d => d.UploadedAt).ToListAsync();
+            }
+
+            // 4. Galéria
+            if (searchGalleries)
+            {
+                vm.GalleryResults = await _context.Galleries.Where(g => g.Title.ToLower().Contains(lowerQ)).ToListAsync();
+            }
+
+            // 5. Kapcsolatok (Tanárok)
+            if (searchUsers)
+            {
+                var editors = await _userManager.GetUsersInRoleAsync("Editor");
+                var readers = await _userManager.GetUsersInRoleAsync("Reader");
+                var galleryManagers = await _userManager.GetUsersInRoleAsync("GalleryManager");
+
+                var allStaff = editors.Concat(readers).Concat(galleryManagers).GroupBy(u => u.Id).Select(g => g.First()).ToList();
+                var admins = await _userManager.GetUsersInRoleAsync("Admin");
+                var adminIds = admins.Select(a => a.Id).ToHashSet();
+
+                vm.UserResults = allStaff.Where(u => !adminIds.Contains(u.Id) && (u.FullName.Contains(q, System.StringComparison.OrdinalIgnoreCase) || u.Email.Contains(q, System.StringComparison.OrdinalIgnoreCase))).OrderBy(u => u.FullName).ToList();
+            }
+
+            return View(vm);
         }
 
         public IActionResult Timetable() => View();

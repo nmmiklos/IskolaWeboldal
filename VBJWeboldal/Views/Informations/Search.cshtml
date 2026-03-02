@@ -1,0 +1,163 @@
+﻿@model VBJWeboldal.ViewModels.SearchResultsViewModel
+@{
+    ViewData["Title"] = "Keresési eredmények";
+}
+
+<div class="box" style="padding: 30px;">
+    <div class="box-h" style="border-bottom: 1px solid var(--line); margin-bottom: 25px; padding-bottom: 15px;">
+        <h2>Keresési eredmények</h2>
+    </div>
+
+    <div class="box-body">
+
+        <form action="/Informations/Search" method="get" style="margin-bottom: 30px;">
+            <input type="hidden" name="filterSubmitted" value="true" />
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="text" name="q" value="@Model.SearchQuery" placeholder="Keress kifejezésekre, nevekre..." required
+                       style="flex: 1; min-width: 250px; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--line); background: var(--cardbg); color: var(--text); font-size: 15px; outline: none; box-shadow: var(--shadow2);" />
+
+                <button type="submit" style="background: var(--accent2); color: white; border-radius: 8px; padding: 12px 12px; border: none; font-weight: bold; cursor: pointer; box-shadow: var(--shadow2); transition: 0.2s;">
+                    Keresés 🔍
+                </button>
+
+                <button type="button" id="toggleFilterBtn" style="background: var(--chip); color: var(--text-strong); border-radius: 8px; padding: 12px 12px; border: 1px solid var(--line); font-weight: bold; cursor: pointer; transition: 0.2s;">
+                    Szűrők ⚙️
+                </button>
+            </div>
+
+            <div id="filterPanel" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid var(--line); border-radius: 8px; padding: 15px; margin-top: 15px;">
+                <h5 style="margin-top: 0; margin-bottom: 15px; font-size: 14px; color: var(--muted);">Keresés az alábbi kategóriákban:</h5>
+
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px; color: var(--text-strong);">
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <input type="checkbox" name="searchNews" value="true" @(Model.SearchNews ? "checked" : "") /> 📰 Hírek
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <input type="checkbox" name="searchEvents" value="true" @(Model.SearchEvents ? "checked" : "") /> 📅 Események
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <input type="checkbox" name="searchDocuments" value="true" @(Model.SearchDocuments ? "checked" : "") /> 📄 Dokumentumok
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <input type="checkbox" name="searchGalleries" value="true" @(Model.SearchGalleries ? "checked" : "") /> 🖼️ Galériák
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <input type="checkbox" name="searchUsers" value="true" @(Model.SearchUsers ? "checked" : "") /> 👥 Tanárok
+                    </label>
+                </div>
+            </div>
+        </form>
+
+        @if (string.IsNullOrWhiteSpace(Model.SearchQuery))
+        {
+            <div style="background: var(--chip); padding: 20px; border-radius: 12px; text-align: center; color: var(--muted);">
+                <p style="margin: 0; font-size: 16px;">Kérlek, adj meg egy keresési kifejezést a fenti mezőben!</p>
+            </div>
+        }
+        else if (!Model.NewsResults.Any() && !Model.EventResults.Any() && !Model.DocumentResults.Any() && !Model.GalleryResults.Any() && !Model.UserResults.Any())
+        {
+            <div style="background: var(--chip); padding: 20px; border-radius: 12px; text-align: center; color: var(--muted);">
+                <p style="margin: 0; font-size: 16px;">Sajnos nem találtunk a keresésnek megfelelő tartalmat erre: <strong>@Model.SearchQuery</strong></p>
+                <p style="margin-top: 10px; font-size: 13px;">Próbálj meg más kifejezést, vagy ellenőrizd a helyesírást!</p>
+            </div>
+        }
+        else
+        {
+            @if (Model.NewsResults.Any())
+            {
+                <h4 style="color: var(--text-strong); margin-bottom: 15px;"><span style="color: var(--accent2);">📰</span> Hírek (@Model.NewsResults.Count)</h4>
+                <div style="margin-bottom: 30px; display: grid; gap: 10px;">
+                    @foreach (var item in Model.NewsResults)
+                    {
+                        <a href="/Hirek/Details/@item.Id" style="display: block; padding: 15px; border: 1px solid var(--line); border-radius: 8px; text-decoration: none; color: inherit; background: var(--cardbg); transition: 0.2s;">
+                            <strong style="font-size: 16px;">@item.Title</strong>
+                            <div style="font-size: 12px; color: var(--muted); margin-top: 5px;">@item.PublishedAt.ToString("yyyy. MM. dd.")</div>
+                        </a>
+                    }
+                </div>
+            }
+
+            @if (Model.EventResults.Any())
+            {
+                <h4 style="color: var(--text-strong); margin-bottom: 15px;"><span style="color: var(--accent2);">📅</span> Események (@Model.EventResults.Count)</h4>
+                <div style="margin-bottom: 30px; display: grid; gap: 10px;">
+                    @foreach (var item in Model.EventResults)
+                    {
+                        <div style="padding: 15px; border: 1px solid var(--line); border-radius: 8px; background: var(--cardbg);">
+                            <strong style="font-size: 16px;">@item.Title</strong>
+                            <span style="display: inline-block; margin-left: 10px; font-size: 12px; background: var(--chip); color: var(--accent2); padding: 2px 8px; border-radius: 4px;">@item.EventDate.ToString("yyyy. MM. dd.")</span>
+                            <div style="font-size: 13px; color: var(--muted); margin-top: 5px;">@item.Description</div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (Model.DocumentResults.Any())
+            {
+                <h4 style="color: var(--text-strong); margin-bottom: 15px;"><span style="color: var(--accent2);">📄</span> Publikus Dokumentumok (@Model.DocumentResults.Count)</h4>
+                <div style="margin-bottom: 30px; display: grid; gap: 10px;">
+                    @foreach (var item in Model.DocumentResults)
+                    {
+                        <a href="@item.FilePath" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 15px; border: 1px solid var(--line); border-radius: 8px; text-decoration: none; color: inherit; background: var(--cardbg);">
+                            <div>
+                                <strong style="font-size: 16px;">@item.Title</strong>
+                                <div style="font-size: 12px; color: var(--muted); margin-top: 5px;">@item.UploadedAt.ToString("yyyy. MM. dd.")</div>
+                            </div>
+                            <span style="color: var(--accent2); font-weight: bold; background: var(--chip); padding: 5px 10px; border-radius: 6px;">Letöltés</span>
+                        </a>
+                    }
+                </div>
+            }
+
+            @if (Model.GalleryResults.Any())
+            {
+                <h4 style="color: var(--text-strong); margin-bottom: 15px;"><span style="color: var(--accent2);">🖼️</span> Galériák (@Model.GalleryResults.Count)</h4>
+                <div style="margin-bottom: 30px; display: grid; gap: 10px;">
+                    @foreach (var item in Model.GalleryResults)
+                    {
+                        <a href="/galeria/@item.Id" style="display: block; padding: 15px; border: 1px solid var(--line); border-radius: 8px; text-decoration: none; color: inherit; background: var(--cardbg);">
+                            <strong style="font-size: 16px;">@item.Title</strong>
+                        </a>
+                    }
+                </div>
+            }
+
+            @if (Model.UserResults.Any())
+            {
+                <h4 style="color: var(--text-strong); margin-bottom: 15px;"><span style="color: var(--accent2);">👥</span> Tanárok / Munkatársak (@Model.UserResults.Count)</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                    @foreach (var user in Model.UserResults)
+                    {
+                        <div style="padding: 15px; border: 1px solid var(--line); border-radius: 8px; background: var(--cardbg); display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 40px; height: 40px; background: rgba(43,108,255,0.1); color: var(--accent2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">👤</div>
+                            <div>
+                                <strong style="display: block; font-size: 15px;">@user.FullName</strong>
+                                <a href="mailto:@user.Email" style="font-size: 12px; color: var(--muted); text-decoration: none;">@user.Email</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('toggleFilterBtn');
+            const filterPanel = document.getElementById('filterPanel');
+
+            toggleBtn.addEventListener('click', function () {
+                if (filterPanel.style.display === 'none') {
+                    filterPanel.style.display = 'block';
+                    toggleBtn.style.background = 'var(--line)'; // Kicsit besötétítjük a gombot aktív állapotban
+                } else {
+                    filterPanel.style.display = 'none';
+                    toggleBtn.style.background = 'var(--chip)';
+                }
+            });
+        });
+    </script>
+}
