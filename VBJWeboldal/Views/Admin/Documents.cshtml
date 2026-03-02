@@ -1,0 +1,129 @@
+﻿@model IEnumerable<VBJWeboldal.Models.Document>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Irányítópult";
+}
+<style>
+
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 900px;
+        margin: 0 auto;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+
+
+    .badge-pdf {
+        background: #e2574c;
+    }
+
+    .badge-word {
+        background: #2b579a;
+    }
+
+    .badge-excel {
+        background: #217346;
+    }
+
+    .badge-other {
+        background: #6c757d;
+    }
+</style>
+
+@if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+{
+    <div class="card">
+        <h2>📄 Új Dokumentum Feltöltése</h2>
+        <form asp-action="UploadDocument" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Dokumentum címe (Megnevezés):</label>
+                <input type="text" name="title" required placeholder="pl. Házirend 2026 vagy Történelem tételek..." />
+            </div>
+            <div class="form-group">
+                <label>Fájl kiválasztása:</label><br />
+                <input type="file" name="file" required style="margin-top: 5px;" />
+            </div>
+            <div class="form-group">
+                <label style="font-weight: bold; cursor: pointer;">
+                    <input type="checkbox" name="isPublic" value="true" />
+                    🌍 Ez egy PUBLIKUS dokumentum (bárki letöltheti a weboldalról, linkelhető)
+                </label>
+                <p style="font-size: 12px; color: #666; margin-top: 5px;">(Ha nincs bepipálva, akkor csak a bejelentkezett tanárok láthatják a Belső rendszerben.)</p>
+            </div>
+            <button type="submit" class="btn" style="background: #5cb85c;">Fájl Feltöltése</button>
+        </form>
+    </div>
+}
+
+<div class="card">
+    <a href="/Admin/Index" style="color: #555; text-decoration: none; display:inline-block; margin-bottom: 15px;">← Vissza az Irányítópultra</a>
+
+    <h3 style="color: #3b66b5;">🌍 Publikus Dokumentumok (Diákoknak, Szülőknek)</h3>
+    <table>
+        <thead><tr><th>Típus</th><th>Cím</th><th>Méret</th><th>Műveletek</th></tr></thead>
+        <tbody>
+            @foreach (var doc in Model.Where(d => d.IsPublic))
+            {
+                <tr>
+                    <td><span class="badge @(doc.FileExtension == ".pdf" ? "badge-pdf" : doc.FileExtension == ".docx" || doc.FileExtension == ".doc" ? "badge-word" : doc.FileExtension == ".xlsx" || doc.FileExtension == ".xls" ? "badge-excel" : "badge-other")">@doc.FileExtension.ToUpper().Replace(".", "")</span></td>
+                    <td><strong>@doc.Title</strong><br><small style="color:#888;">@doc.UploadedAt.ToString("yyyy.MM.dd")</small></td>
+                    <td>@(doc.FileSize / 1024) KB</td>
+                    <td>
+                        <a href="@doc.FilePath" target="_blank" class="btn">Megnyitás</a>
+                        <button class="btn" style="background: #6c757d;" onclick="navigator.clipboard.writeText(window.location.origin + '@doc.FilePath'); alert('Link a vágólapra másolva!');">🔗 Link másolása</button>
+
+                        @if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+                        {
+                            <form action="/Admin/DeleteDocument/@doc.Id" method="post" style="display:inline;" onsubmit="return confirm('Biztosan törlöd ezt a dokumentumot?');">
+                                <button type="submit" style="background:none; border:none; color:red; cursor:pointer; font-weight:bold; margin-left:10px;">🗑️</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;" />
+
+    <h3 style="color: #e2574c;">🔒 Belső Tanári Dokumentumok (Csak bejelentkezve)</h3>
+    <table>
+        <thead><tr><th>Típus</th><th>Cím</th><th>Méret</th><th>Műveletek</th></tr></thead>
+        <tbody>
+            @foreach (var doc in Model.Where(d => !d.IsPublic))
+            {
+                <tr>
+                    <td><span class="badge @(doc.FileExtension == ".pdf" ? "badge-pdf" : doc.FileExtension == ".docx" || doc.FileExtension == ".doc" ? "badge-word" : doc.FileExtension == ".xlsx" || doc.FileExtension == ".xls" ? "badge-excel" : "badge-other")">@doc.FileExtension.ToUpper().Replace(".", "")</span></td>
+                    <td><strong>@doc.Title</strong><br><small style="color:#888;">@doc.UploadedAt.ToString("yyyy.MM.dd")</small></td>
+                    <td>@(doc.FileSize / 1024) KB</td>
+                    <td>
+                        <a href="@doc.FilePath" target="_blank" class="btn">Letöltés / Megtekintés</a>
+
+                        @if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+                        {
+                            <form action="/Admin/DeleteDocument/@doc.Id" method="post" style="display:inline;" onsubmit="return confirm('Biztosan törlöd ezt a dokumentumot?');">
+                                <button type="submit" style="background:none; border:none; color:red; cursor:pointer; font-weight:bold; margin-left:10px;">🗑️</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

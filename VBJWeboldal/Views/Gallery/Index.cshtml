@@ -1,15 +1,40 @@
-﻿@{
+﻿@model IEnumerable<VBJWeboldal.Models.Gallery>
+@{
     ViewData["Title"] = "Galéria";
 }
 
 <div class="section">
     <div class="section-h">
-        <h3>Galéria</h3>
+        <div>
+            <h3>Galéria</h3>
+            <p>Iskolánk eseményeinek képei</p>
+        </div>
     </div>
 
     <div class="gallery">
         <div class="strip">
-            <!-- reuse .gitem -->
+            @foreach (var gal in Model)
+            {
+                var coverImage = gal.Images.FirstOrDefault()?.ImagePath ?? "";
+                var bgStyle = !string.IsNullOrEmpty(coverImage)
+                ? $"background: url('{coverImage}') center / cover no-repeat;"
+                : "background: var(--muted);";
+
+                <a href="/galeria/@gal.Id" class="gitem" style="@bgStyle position: relative; display: block; text-decoration: none;">
+
+                    <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,58,122,0.9), transparent 60%);"></div>
+
+                    <div class="gcap" style="color: white; z-index: 10;">
+                        <span>@gal.Title (@gal.Images.Count kép)</span>
+                        <span>→</span>
+                    </div>
+                </a>
+            }
+
+            @if (!Model.Any())
+            {
+                <p style="padding: 10px; color: var(--muted);">Még nincsenek feltöltve galériák.</p>
+            }
         </div>
     </div>
 </div>

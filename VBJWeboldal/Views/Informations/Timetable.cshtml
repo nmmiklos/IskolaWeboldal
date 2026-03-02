@@ -2,11 +2,156 @@
     ViewData["Title"] = "Órarend";
 }
 
-<div class="box">
-    <div class="box-h">
-        <h4>Itt lesznek az órarendek</h4>
+<div class="box" style="padding: 20px;">
+    <div class="box-h" style="border-bottom: 1px solid var(--line); margin-bottom: 20px; padding-bottom: 10px;">
+        <h4 style="font-size: 24px;">Órarend</h4>
     </div>
+
     <div class="box-body">
-        <!-- reuse .event blocks -->
+        <div style="display: flex; gap: 15px; margin-bottom: 25px;">
+            <select id="typeSelect" style="padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--cardbg); color: var(--text); min-width: 180px;">
+                <option value="Class" selected>Osztályok szerint</option>
+                <option value="Teacher">Tanárok szerint</option>
+                <option value="Room">Termek szerint</option>
+            </select>
+
+            <select id="valueSelect" style="padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--cardbg); color: var(--text); min-width: 180px;">
+                <option>Betöltés...</option>
+            </select>
+        </div>
+
+        <div id="timetableDisplay" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 15px;">
+                <h3 id="ttHeader" style="color: var(--accent2); margin: 0;"></h3>
+                <span id="ttHomeroom" style="font-weight: bold; color: var(--muted); display: none;"></span>
+            </div>
+
+            <div style="overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow2);">
+                <table id="ttTable" style="width: 100%; border-collapse: collapse; background: var(--cardbg); min-width: 800px;">
+                    <thead>
+                        <tr style="background: rgba(0,0,0,0.05); border-bottom: 2px solid var(--line);">
+                            <th style="padding: 15px; text-align: center; border-right: 1px solid var(--line); width: 60px;">#</th>
+                            <th style="padding: 15px; text-align: center; border-right: 1px solid var(--line);">Hétfő</th>
+                            <th style="padding: 15px; text-align: center; border-right: 1px solid var(--line);">Kedd</th>
+                            <th style="padding: 15px; text-align: center; border-right: 1px solid var(--line);">Szerda</th>
+                            <th style="padding: 15px; text-align: center; border-right: 1px solid var(--line);">Csütörtök</th>
+                            <th style="padding: 15px; text-align: center;">Péntek</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ttBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const typeSelect = document.getElementById('typeSelect');
+            const valueSelect = document.getElementById('valueSelect');
+            const display = document.getElementById('timetableDisplay');
+            const header = document.getElementById('ttHeader');
+            const homeroom = document.getElementById('ttHomeroom');
+            const ttBody = document.getElementById('ttBody');
+
+            typeSelect.addEventListener('change', loadOptions);
+            valueSelect.addEventListener('change', loadTimetable);
+
+            loadOptions();
+
+            function loadOptions() {
+                const type = typeSelect.value;
+                fetch(`/Informations/GetTimetableOptions?type=${type}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        valueSelect.innerHTML = '';
+                        if(data.length === 0) {
+                            valueSelect.innerHTML = '<option>Nincs adat</option>';
+                            return;
+                        }
+                        data.forEach(item => {
+                            const opt = document.createElement('option');
+                            opt.value = item;
+                            opt.textContent = item;
+                            valueSelect.appendChild(opt);
+                        });
+                        loadTimetable();
+                    });
+            }
+
+            function loadTimetable() {
+                const type = typeSelect.value;
+                const val = valueSelect.value;
+                if(!val || val.startsWith("Betöltés")) return;
+
+                fetch(`/Informations/GetTimetableData?type=${type}&value=${val}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        display.style.display = 'block';
+                        header.textContent = data.selectedValue;
+                        if (data.homeroomTeacher) {
+                            homeroom.textContent = "Osztályfőnök: " + data.homeroomTeacher;
+                            homeroom.style.display = 'block';
+                        } else {
+                            homeroom.style.display = 'none';
+                        }
+                        renderTable(data.lessons, type);
+                    });
+            }
+
+            function renderTable(lessons, currentType) {
+                ttBody.innerHTML = '';
+                const days = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek"];
+
+                if (lessons.length === 0) return;
+
+                // Megkeressük a legnagyobb és a legkisebb órát is!
+                const maxPeriod = Math.max(...lessons.map(l => l.period));
+                const minPeriod = Math.min(...lessons.map(l => l.period));
+
+                // Ha van 0. óra (vagy annál kisebb), onnan indulunk, ha nincs, akkor az 1. órától
+                const startPeriod = minPeriod < 1 ? minPeriod : 1;
+
+                for (let p = startPeriod; p <= maxPeriod; p++) {
+                    let rowHtml = `<tr style="border-bottom: 1px solid var(--line);">`;
+                    // Első oszlop: az óra sorszáma
+                    rowHtml += `<td style="padding: 15px; text-align: center; font-weight: 800; background: rgba(0,0,0,0.02); border-right: 1px solid var(--line); color: var(--accent2); width: 60px;">${p}.</td>`;
+
+                    days.forEach(day => {
+                        const cellLessons = lessons.filter(l => l.day === day && l.period === p);
+                        rowHtml += `<td style="padding: 8px; border-right: 1px solid var(--line); vertical-align: top; width: 18.8%;">`;
+
+                        if (cellLessons.length > 0) {
+                            // Flexbox kártya a csoportbontásoknak
+                            rowHtml += `<div style="display: flex; background: var(--chip); border-radius: 8px; border: 1px solid rgba(0,0,0,0.05); overflow: hidden; height: 100%;">`;
+
+                            cellLessons.forEach((l, index) => {
+                                const isLast = index === cellLessons.length - 1;
+                                const borderStyle = !isLast ? `border-right: 1px solid rgba(0, 0, 0, 0.1);` : ``;
+
+                                rowHtml += `<div style="flex: 1; padding: 8px; font-size: 13px; ${borderStyle}">
+                                                <div style="font-weight: 700; margin-bottom: 2px; color: var(--text-strong);">${l.subject}</div>
+                                                <div style="font-size: 11px; color: var(--muted); line-height: 1.3;">
+                                                    ${currentType !== 'Class' ? '👥 ' + l.className + '<br>' : ''}
+                                                    ${currentType !== 'Teacher' ? '👤 ' + l.teacher + '<br>' : ''}
+                                                    📍 ${l.room}
+                                                    ${l.group && l.group !== "Teljes osztály" ? '<br><i style="color:var(--accent2); font-weight: 600;">' + l.group + '</i>' : ''}
+                                                </div>
+                                            </div>`;
+                            });
+
+                            rowHtml += `</div>`;
+                        }
+
+                        rowHtml += `</td>`;
+                    });
+
+                    rowHtml += `</tr>`;
+                    ttBody.insertAdjacentHTML('beforeend', rowHtml);
+                }
+            }
+        });
+    </script>
+}

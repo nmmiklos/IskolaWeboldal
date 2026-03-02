@@ -1,0 +1,80 @@
+﻿@model VBJWeboldal.Models.Gallery
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = @Model.Title+" - Képek";
+}
+<style>
+    *{
+        font-family: Arial !important;
+    }
+    .card {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    
+
+    .upload-box {
+        border: 2px dashed #ccc;
+        padding: 20px;
+        text-align: center;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        background: var(--admin-bg);
+        border: 1px dashed var(--admin-border);
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .img-wrap {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+        .img-wrap img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+</style>
+<div class="card">
+    <h2>📸 Album: @Model.Title</h2>
+    <a href="/Admin/Galleries" style="color: #555; display:inline-block; margin-bottom: 20px;">← Vissza a galériákhoz</a>
+
+    <form asp-action="UploadImages" method="post" enctype="multipart/form-data" class="upload-box">
+        <input type="hidden" name="galleryId" value="@Model.Id" />
+        <h4 style="margin-top:0;">Új képek feltöltése</h4>
+        <input type="file" name="files" accept="image/*" multiple required style="margin-bottom: 15px;" />
+        <button type="submit" class="btn" style="background: #5cb85c;">
+            Kiválasztott képek feltöltése
+        </button>
+        <p style="font-size:12px; color:#888;">(Egyszerre több képet is kijelölhetsz a számítógépeden!)</p>
+    </form>
+
+    <div class="grid">
+        @foreach (var img in Model.Images)
+        {
+            <div class="img-wrap" style="position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <img src="@img.ImagePath" alt="Galéria kép" style="width: 100%; height: 150px; object-fit: cover; display: block;" />
+
+                <form action="/Admin/DeleteImage/@img.Id" method="post" style="position: absolute; top: 8px; right: 8px; margin: 0;" onsubmit="return confirm('Biztosan törlöd ezt a képet?');">
+                    <button type="submit" style="background: rgba(220, 53, 69, 0.9); color: white; border: 1px solid white; border-radius: 50%; width: 28px; height: 28px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3);" title="Kép törlése">
+                        X
+                    </button>
+                </form>
+            </div>
+        }
+    </div>
+    @if (!Model.Images.Any())
+    {
+        <p style="text-align:center; color:#888;">Ez az album még üres.</p>
+    }
+</div>

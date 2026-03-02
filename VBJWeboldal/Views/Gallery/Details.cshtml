@@ -1,15 +1,37 @@
-﻿@{
-    ViewData["Title"] = "Galéria";
+﻿@model VBJWeboldal.Models.Gallery
+@{
+    ViewData["Title"] = Model.Title;
 }
 
 <div class="section">
     <div class="section-h">
-        <h3>Galéria</h3>
+        <div>
+            <h3>@Model.Title</h3>
+            <p>
+                <a href="/galeria" style="color: var(--link); font-weight: bold; text-decoration: none;">
+                    ← Vissza az albumokhoz
+                </a>
+            </p>
+        </div>
     </div>
 
-    <div class="gallery">
-        <div class="strip">
-            <!-- reuse .gitem -->
+    <div style="padding: 16px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+
+            @foreach (var img in Model.Images)
+            {
+                <div class="box" style="height: 200px; border-radius: 12px; overflow: hidden; position: relative;">
+                    <a href="@img.ImagePath" target="_blank" title="Kattints a nagyításhoz">
+                        <img src="@img.ImagePath" alt="Galéria kép" style="width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" />
+                    </a>
+                </div>
+            }
+
         </div>
+
+        @if (!Model.Images.Any())
+        {
+            <p style="color: var(--muted);">Ebben az albumban még nincsenek képek.</p>
+        }
     </div>
 </div>

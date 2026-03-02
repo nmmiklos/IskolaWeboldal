@@ -22,6 +22,6 @@ namespace VBJWeboldal.Models
         public ApplicationUser? Author { get; set; }
         //képek
         public string? CoverImagePath { get; set; }
-
+        public string? AttachedDocumentUrl { get; set; }
     }
 }

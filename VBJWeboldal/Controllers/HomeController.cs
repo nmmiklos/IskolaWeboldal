@@ -22,42 +22,39 @@ public class HomeController : Controller
     [HttpGet("/")]
     public async Task<IActionResult> Index()
     {
-        var model = new HomeViewModel
+        // 1. Hírek lekérése
+        var publishedNews = await _context.News.Where(n => n.IsPublished).OrderByDescending(n => n.PublishedAt).Take(3).ToListAsync();
+
+        // 2. Galériák lekérése
+        var galleries = await _context.Galleries.Include(g => g.Images).OrderByDescending(g => g.Id).Take(3).ToListAsync();
+
+        // 3. Legújabb PUBLIKUS dokumentumok lekérése (MAX 3 DARAB)
+        var latestDocs = await _context.Documents
+            .Where(d => d.IsPublic)
+            .OrderByDescending(d => d.UploadedAt)
+            .Take(3)
+            .ToListAsync();
+        // 4. Közelgõ események
+        var upcomingEvents = await _context.Events
+                                           .Where(e => e.EventDate >= DateTime.Now)
+                                           .OrderBy(e => e.EventDate)
+                                           .Take(3)
+                                           .ToListAsync();
+
+
+        var viewModel = new VBJWeboldal.ViewModels.HomeViewModel
         {
-            // hírek
-            FrissHirek = await _context.News
-                .Where(n => n.IsPublished)
-                .OrderByDescending(n => n.PublishedAt)
-                .Take(4)
-                .ToListAsync(),
+            NewsList = publishedNews,
+            Galleries = galleries,
+            LatestDocuments = latestDocs, // <--- Ezt adjuk át
 
-            //események
-            KozelgoEsemeny = await _context.Events
-                .Where(e => e.EventDate >= DateTime.Now)
-                .OrderBy(e => e.EventDate)
-                .Take(3)
-                .ToListAsync(),
-
-            // Galérrai
-            FrissGaleriaKep = await _context.Galleries
-                .OrderByDescending(g => g.Id)
-                .Take(6)
-                .ToListAsync(),
-
-            // szamlalok
-            HirekSzama = await _context.News
-                .Where(n => n.IsPublished)
-                .CountAsync(),
-
-            EsemenyekSzama = await _context.Events
-                .Where(e => e.EventDate >= DateTime.Now)
-                .CountAsync(),
-
-            GaleriaKepekSzama = await _context.Galleries
-                .CountAsync()
+            HirekSzama = await _context.News.CountAsync(n => n.IsPublished),
+            GaleriaKepekSzama = await _context.Galleries.SelectMany(g => g.Images).CountAsync(),
+            EsemenyekSzama = await _context.Events.CountAsync(e => e.EventDate >= DateTime.Now)
         };
 
-        return View(model);
+
+        return View(viewModel);
     }
 
 

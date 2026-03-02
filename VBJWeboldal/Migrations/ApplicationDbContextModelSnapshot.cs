@@ -233,9 +233,19 @@ namespace VBJWeboldal.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("FileExtension")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<string>("FilePath")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -319,6 +329,9 @@ namespace VBJWeboldal.Migrations
                         .HasColumnType("int");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AttachedDocumentUrl")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("AuthorId")
                         .HasColumnType("varchar(255)");

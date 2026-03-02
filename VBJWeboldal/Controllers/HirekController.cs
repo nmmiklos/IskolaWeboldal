@@ -23,6 +23,7 @@ namespace VBJWeboldal.Controllers
         public async Task<IActionResult> Index()
         {
             var hirekListaja = await _context.News // Itt a te táblanevedet (News) használtam
+                .Where(h => h.IsPublished == true)
                 .OrderByDescending(h => h.PublishedAt)
                 .ToListAsync();
 

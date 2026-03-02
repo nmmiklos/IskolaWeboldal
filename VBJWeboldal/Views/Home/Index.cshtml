@@ -75,7 +75,40 @@
 
 
     <div>
+        <section class="section" id="szakok" style="margin-bottom:12px;">
+            <div class="section-h">
+                <h3>Szakjaink</h3>
+            </div>
 
+            <div class="szak-grid">
+
+                <div class="szak-card">
+                    <img src="~/rootimages/eletko-icon.png" asp-append-version="true" alt="Elektronika és elektrotechnika">
+                    <h5>Elektronika és elektrotechnika</h5>
+                </div>
+
+                <div class="szak-card">
+                    <img src="~/rootimages/gepesz-icon.png" asp-append-version="true" alt="Gépészet">
+                    <h5>Gépészet</h5>
+                </div>
+
+                <div class="szak-card">
+                    <img src="~/rootimages/info-icon.png" asp-append-version="true" alt="Informatika és távközlés">
+                    <h5>Informatika és távközlés</h5>
+                </div>
+
+                <div class="szak-card">
+                    <img src="~/rootimages/kozg-icon.png" asp-append-version="true" alt="Gzadálkodás és menedzsment">
+                    <h5>Gzadálkodás és menedzsmen</h5>
+                </div>
+
+                <div class="szak-card">
+                    <img src="~/rootimages/gimi-icon.png" asp-append-version="true" alt="Gimnázium">
+                    <h5>Gimnázium</h5>
+                </div>
+
+            </div>
+        </section>
         <section class="section" id="hirek">
             <div class="section-h">
                 <div>
@@ -87,7 +120,7 @@
             <div class="news" id="hirek">
                 <div class="news-grid">
                     
-                    @foreach (var cikk in Model.FrissHirek.Take(3))
+                    @foreach (var cikk in Model.NewsList.Take(3))
                     {
                         <article class="card" style="display: flex; flex-direction: column; height: 100%;">
 
@@ -132,9 +165,25 @@
 
             <div class="gallery">
                 <div class="strip">
-                    <div class="gitem"><div class="gcap">Farsang →</div></div>
-                    <div class="gitem"><div class="gcap">Sportnap →</div></div>
-                    <div class="gitem"><div class="gcap">Ballagás →</div></div>
+                    @foreach (var gal in Model.Galleries)
+                    {
+                        var coverImage = gal.Images.FirstOrDefault()?.ImagePath ?? "";
+                        var bgStyle = !string.IsNullOrEmpty(coverImage)
+                        ? $"background: url('{coverImage}') center / cover no-repeat;"
+                        : "background: var(--muted);";
+
+                        <a href="/galeria/@gal.Id" class="gitem" style="@bgStyle position: relative; display: block; text-decoration: none;">
+                            <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,58,122,0.9), transparent 60%);"></div>
+                            <div class="gcap" style="color: white; z-index: 10;">
+                                <span>@gal.Title</span>
+                                <span>→</span>
+                            </div>
+                        </a>
+                    }
+                    @if (!Model.Galleries.Any())
+                    {
+                        <p style="padding: 10px; color: var(--muted);">Még nincsenek galériák.</p>
+                    }
                 </div>
             </div>
         </section>
@@ -143,6 +192,26 @@
         <section class="section" id="dokumentumok" style="margin-top:12px;">
             <div class="section-h">
                 <h3>Dokumentumok</h3>
+            </div>
+
+            <div style="padding: 0 16px 16px 16px;">
+                @foreach (var doc in Model.LatestDocuments)
+                {
+                    <a href="@doc.FilePath" target="_blank" class="linkbtn">
+                        <span style="line-height: 1.4;">
+                            <strong>@doc.Title</strong><br>
+                            <small style="color: var(--muted); font-weight: normal;">
+                                @doc.FileExtension.ToUpper().Replace(".", "") • @(doc.FileSize / 1024) KB
+                            </small>
+                        </span>
+                        <span style="font-size: 18px;">⬇️</span>
+                    </a>
+                }
+
+                @if (!Model.LatestDocuments.Any())
+                {
+                    <p style="color: var(--muted); font-size: 13px; margin: 0;">Jelenleg nincsenek feltöltött publikus dokumentumok.</p>
+                }
             </div>
         </section>
 

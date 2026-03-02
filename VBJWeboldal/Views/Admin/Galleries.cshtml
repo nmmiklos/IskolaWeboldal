@@ -1,0 +1,58 @@
+﻿@model IEnumerable<VBJWeboldal.Models.Gallery>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Galériák Kezelése";
+}
+<style>
+
+    .card {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-inline {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+</style>
+<div class="card">
+    <h2>🖼️ Galériák (Albumok) Kezelése</h2>
+
+    <form asp-action="CreateGallery" method="post" class="form-inline">
+        <input type="text" name="title" placeholder="Új galéria címe (pl. Farsang 2025)..." required />
+        <button type="submit" class="btn">+ Létrehozás</button>
+    </form>
+
+    <table>
+        <thead><tr><th>Album Címe</th><th>Képek száma</th><th>Műveletek</th></tr></thead>
+        <tbody>
+            @foreach (var gal in Model)
+            {
+                <tr>
+                    <td><strong>@gal.Title</strong></td>
+                    <td>@gal.Images.Count kép</td>
+                    <td>
+                        <a href="/Admin/GalleryDetails/@gal.Id" class="btn" style="background: #5cb85c; font-size: 13px;">📸 Képek kezelése</a>
+                        <form action="/Admin/DeleteGallery/@gal.Id" method="post" style="display:inline;" onsubmit="return confirm('Biztos törlöd az egész albumot a képekkel együtt?');">
+                            <button type="submit" style="background:none; border:none; color:red; cursor:pointer; font-weight:bold; margin-left:10px;">🗑️ Törlés</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr><td colspan="3" style="text-align:center;">Még nincs létrehozva galéria.</td></tr>
+            }
+        </tbody>
+    </table>
+    <br />
+    <a href="/Admin/Index" style="color: #555;">← Vissza az Irányítópultra</a>
+</div>
