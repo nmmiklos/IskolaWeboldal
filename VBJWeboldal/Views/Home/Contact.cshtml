@@ -1,15 +1,39 @@
-﻿@{
+﻿@model IEnumerable<VBJWeboldal.Models.ApplicationUser>
+@{
     ViewData["Title"] = "Kapcsolat";
 }
 
 <div class="section">
     <div class="section-h">
-        <h3>Kapcsolat</h3>
-        <p>Elérhetőségek</p>
+        <div>
+            <h3>Kapcsolatok</h3>
+            <p>Iskolánk tanárai és munkatársai</p>
+        </div>
     </div>
 
-    <div style="padding:16px">
-        <p>Email: info@iskola.hu</p>
-        <p>Telefon: +36 30 123 4567</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 16px;">
+
+        @foreach (var user in Model)
+        {
+            <div class="box" style="padding: 25px; border-radius: 12px; text-align: center; background: white;">
+                <div style="width: 60px; height: 60px; background: rgba(43,108,255,0.1); color: var(--link); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 15px auto;">
+                    👤
+                </div>
+
+                <h4 style="margin: 0 0 5px 0; color: var(--text-strong); font-size: 18px;">@user.FullName</h4>
+
+                <a href="mailto:@user.Email" class="btn-primary" style="display: inline-block; margin-top: 15px; text-decoration: none; padding: 8px 16px; font-size: 14px; border-radius: 20px;">
+                    ✉️ @user.Email
+                </a>
+            </div>
+        }
+
     </div>
+
+    @if (!Model.Any())
+    {
+        <div style="padding: 16px; text-align: center;">
+            <p style="color: var(--muted);">Jelenleg nincsenek megjeleníthető munkatársak.</p>
+        </div>
+    }
 </div>

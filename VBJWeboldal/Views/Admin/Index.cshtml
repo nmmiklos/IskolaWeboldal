@@ -41,6 +41,16 @@
             </div>
         </a>
     }
+    @if(User.IsInRole("Editor") || User.IsInRole("Admin"))
+    {
+        <a href="/Admin/Events" style="text-decoration: none; color: inherit; display: contents;">
+            <div class="stat-card" style="cursor: pointer;">
+                <div class="stat-icon" style="background: rgba(243, 156, 18, 0.1); color: #f39c12;">📅</div>
+                <div><b>események</b></div>
+            </div>
+        </a>
+    }
+    
 </div>
 
 <div class="content-grid">

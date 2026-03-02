@@ -1,0 +1,112 @@
+﻿@model IEnumerable<VBJWeboldal.Models.Event>
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Események Kezelése</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            padding: 40px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .btn {
+            background: #3b66b5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input[type="text"], input[type="date"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <a href="/Admin/Index" style="color: #555; text-decoration: none; display:inline-block; margin-bottom: 15px;">← Vissza az Irányítópultra</a>
+
+        <h2>📅 Új Esemény hozzáadása</h2>
+        <form asp-action="CreateEvent" method="post">
+            <div class="form-group">
+                <label>Esemény címe (pl. Évzáró ünnepség):</label>
+                <input type="text" name="Title" required />
+            </div>
+            <div class="form-group">
+                <label>Dátum:</label>
+                <input type="date" name="EventDate" required />
+            </div>
+            <div class="form-group">
+                <label>Rövid leírás (Ez jelenik meg, ha az egeret ráviszik az oldalon):</label>
+                <textarea name="Description" rows="3" required placeholder="pl. Kérjük a diákokat, hogy ünneplőben jelenjenek meg..."></textarea>
+            </div>
+            <button type="submit" class="btn" style="background: #5cb85c;">+ Esemény mentése</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3 style="color: #3b66b5;">Közelgő események (Az elavultak automatikusan törlődnek!)</h3>
+        <table>
+            <thead><tr><th>Dátum</th><th>Cím</th><th>Művelet (Manuális Törlés)</th></tr></thead>
+            <tbody>
+                @foreach (var ev in Model)
+                {
+                    <tr>
+                        <td><strong style="color: #e2574c;">@ev.EventDate.ToString("yyyy. MM. dd.")</strong></td>
+                        <td>
+                            <strong>@ev.Title</strong><br>
+                            <small style="color: #888;">@ev.Description</small>
+                        </td>
+                        <td>
+                            <form action="/Admin/DeleteEvent/@ev.Id" method="post" onsubmit="return confirm('Biztosan törlöd ezt az eseményt?');">
+                                <button type="submit" style="background:none; border:none; color:red; cursor:pointer; font-weight:bold;">🗑️ Törlés</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="3" style="text-align:center;">Nincsenek közelgő események.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

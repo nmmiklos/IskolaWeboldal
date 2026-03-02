@@ -491,5 +491,51 @@ namespace VBJWeboldal.Controllers
             return RedirectToAction("Documents");
         }
 
+        //         ESEMÉNYEK (NAPTÁR) KEZELÉSE
+
+
+        [HttpGet]
+        [Authorize(Roles = "Admin,Editor")]
+        public async Task<IActionResult> Events()
+        {
+            // Automatikus takarítás itt is, ha a tanár lép be először
+            var pastEvents = await _context.Events.Where(e => e.EventDate.Date < DateTime.Now.Date).ToListAsync();
+            if (pastEvents.Any())
+            {
+                _context.Events.RemoveRange(pastEvents);
+                await _context.SaveChangesAsync();
+            }
+
+            var events = await _context.Events.OrderBy(e => e.EventDate).ToListAsync();
+            return View(events);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin,Editor")]
+        public async Task<IActionResult> CreateEvent(Event model)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Events.Add(model);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Events");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin,Editor")]
+        public async Task<IActionResult> DeleteEvent(int id)
+        {
+            var ev = await _context.Events.FindAsync(id);
+            if (ev != null)
+            {
+                _context.Events.Remove(ev);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Events");
+        }
+
+
+
     }
 }

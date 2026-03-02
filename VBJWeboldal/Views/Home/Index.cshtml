@@ -220,20 +220,41 @@
 
     <aside class="side">
 
-        <section class="box" id="kozelgoEsemenyek">
+        <div class="box" style="margin-bottom: 20px;">
             <div class="box-h">
-                <h4>Közelgő események</h4>
+                <h4>📅 Közelgő Események</h4>
             </div>
-            <div class="box-body">
-                <div class="event">
-                    <div class="date-square">MÁ<small>12</small></div>
-                    <div>
-                        <b>Ballagás</b>
-                        <span>2026.06.15</span>
+            <div class="box-body" style="padding: 0;">
+                @foreach (var ev in Model.UpcomingEvents)
+                {
+                    <div style="padding: 16px 20px; border-bottom: 1px solid var(--line);">
+
+                        <div style="display: flex; gap: 15px; align-items: flex-start;">
+                            <div style="background: rgba(226, 87, 76, 0.1); color: #e2574c; padding: 10px; border-radius: 8px; text-align: center; min-width: 45px; flex-shrink: 0;">
+                                <div style="font-size: 12px; font-weight: bold; text-transform: uppercase;">@ev.EventDate.ToString("MMM")</div>
+                                <div style="font-size: 20px; font-weight: 900; line-height: 1;">@ev.EventDate.ToString("dd")</div>
+                            </div>
+
+                            <div>
+                                <div style="font-weight: bold; color: var(--text-strong); font-size: 15px; margin-bottom: 4px;">
+                                    @ev.Title
+                                </div>
+
+                                <div style="font-size: 13px; color: var(--muted); line-height: 1.4; word-break: break-word;">
+                                    @ev.Description
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
-                </div>
+                }
+
+                @if (!Model.UpcomingEvents.Any())
+                {
+                    <p style="padding: 15px; color: var(--muted); font-size: 13px; text-align: center; margin: 0;">Jelenleg nincsenek közelgő események rögzítve.</p>
+                }
             </div>
-        </section>
+        </div>
 
         <section class="box">
             <div class="box-h">

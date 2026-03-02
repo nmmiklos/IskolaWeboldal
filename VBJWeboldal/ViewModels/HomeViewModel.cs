@@ -13,6 +13,7 @@ namespace VBJWeboldal.ViewModels
         public IEnumerable<News> NewsList { get; set; }
         public IEnumerable<Gallery> Galleries { get; set; }
         public IEnumerable<Document> LatestDocuments { get; set; }
+        public IEnumerable<Event> UpcomingEvents { get; set; }
 
         public int HirekSzama { get; set; }
         public int EsemenyekSzama { get; set; }

@@ -7,11 +7,13 @@ namespace VBJWeboldal.Models
     {
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Az esemény címének megadása kötelező.")]
         public string Title { get; set; }
 
-        public DateTime EventDate { get; set; }
+        [Required(ErrorMessage = "Az esemény leírásának megadása kötelező.")]
+        public string Description { get; set; } // Ez jelenik meg Hover-re
 
-        public string Location { get; set; }
+        [Required(ErrorMessage = "Dátum megadása kötelező.")]
+        public DateTime EventDate { get; set; }
     }
 }
