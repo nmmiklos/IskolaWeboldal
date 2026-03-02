@@ -1,19 +1,8 @@
 ﻿@model IEnumerable<VBJWeboldal.Models.Event>
 @{
-    Layout = null;
+    Layout = "_AdminLayout";
 }
-<!DOCTYPE html>
-<html lang="hu">
-<head>
-    <meta charset="UTF-8">
-    <title>Események Kezelése</title>
     <style>
-        body {
-            font-family: Arial;
-            background: #f4f6f9;
-            padding: 40px;
-        }
-
         .card {
             background: white;
             padding: 20px;
@@ -24,42 +13,8 @@
             margin-bottom: 20px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .btn {
-            background: #3b66b5;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        input[type="text"], input[type="date"], textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
     </style>
-</head>
-<body>
+
     <div class="card">
         <a href="/Admin/Index" style="color: #555; text-decoration: none; display:inline-block; margin-bottom: 15px;">← Vissza az Irányítópultra</a>
 
@@ -108,5 +63,3 @@
             </tbody>
         </table>
     </div>
-</body>
-</html>
