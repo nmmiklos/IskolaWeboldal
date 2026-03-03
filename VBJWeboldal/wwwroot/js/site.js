@@ -8,6 +8,7 @@
     const btn = document.getElementById("menuBtn");
     const panel = document.getElementById("menuPanel");
 
+
     btn.addEventListener("click", (e) => {
         e.stopPropagation();
         panel.classList.toggle("open");

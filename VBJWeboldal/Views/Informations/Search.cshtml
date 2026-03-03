@@ -21,31 +21,38 @@
                     Keresés 🔍
                 </button>
 
-                <button type="button" id="toggleFilterBtn" style="background: var(--chip); color: var(--text-strong); border-radius: 8px; padding: 12px 12px; border: 1px solid var(--line); font-weight: bold; cursor: pointer; transition: 0.2s;">
-                    Szűrők ⚙️
-                </button>
-            </div>
+                <div class="menu-wrap">
+                    <button type="button" id="toggleFilterBtn" style="background: var(--chip); color: var(--text-strong); border-radius: 8px; padding: 12px 12px; border: 1px solid var(--line); font-weight: bold; cursor: pointer; transition: 0.2s;">
+                        Szűrők ⚙️
+                    </button>
 
-            <div id="filterPanel" style="display: none; background: rgba(0,0,0,0.02); border: 1px solid var(--line); border-radius: 8px; padding: 15px; margin-top: 15px;">
-                <h5 style="margin-top: 0; margin-bottom: 15px; font-size: 14px; color: var(--muted);">Keresés az alábbi kategóriákban:</h5>
+                    <div id="filterPanel" class="menu-panel" style="padding: 20px; min-width: 220px; z-index: 100; right: 0; left: auto;">
+                        <h5 style="margin-top: 0; margin-bottom: 15px; font-size: 14px; color: var(--muted);">Keresés kategóriákban:</h5>
 
-                <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px; color: var(--text-strong);">
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <input type="checkbox" name="searchNews" value="true" @(Model.SearchNews ? "checked" : "") /> 📰 Hírek
-                    </label>
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <input type="checkbox" name="searchEvents" value="true" @(Model.SearchEvents ? "checked" : "") /> 📅 Események
-                    </label>
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <input type="checkbox" name="searchDocuments" value="true" @(Model.SearchDocuments ? "checked" : "") /> 📄 Dokumentumok
-                    </label>
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <input type="checkbox" name="searchGalleries" value="true" @(Model.SearchGalleries ? "checked" : "") /> 🖼️ Galériák
-                    </label>
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <input type="checkbox" name="searchUsers" value="true" @(Model.SearchUsers ? "checked" : "") /> 👥 Tanárok
-                    </label>
+                        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: var(--text-strong);">
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="searchNews" value="true" @(Model.SearchNews ? "checked" : "") /> 📰 Hírek
+                            </label>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="searchEvents" value="true" @(Model.SearchEvents ? "checked" : "") /> 📅 Események
+                            </label>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="searchDocuments" value="true" @(Model.SearchDocuments ? "checked" : "") /> 📄 Dokumentumok
+                            </label>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="searchGalleries" value="true" @(Model.SearchGalleries ? "checked" : "") /> 🖼️ Galériák
+                            </label>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="searchUsers" value="true" @(Model.SearchUsers ? "checked" : "") /> 👥 Tanárok
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn" style="background: var(--accent2); color: white; width: 100%; margin-top: 20px; padding: 8px; font-size: 14px;">
+                            Frissítés
+                        </button>
+                    </div>
                 </div>
+
             </div>
         </form>
 
@@ -146,17 +153,23 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const toggleBtn = document.getElementById('toggleFilterBtn');
+            const filterBtn = document.getElementById('toggleFilterBtn');
             const filterPanel = document.getElementById('filterPanel');
 
-            toggleBtn.addEventListener('click', function () {
-                if (filterPanel.style.display === 'none') {
-                    filterPanel.style.display = 'block';
-                    toggleBtn.style.background = 'var(--line)'; // Kicsit besötétítjük a gombot aktív állapotban
-                } else {
-                    filterPanel.style.display = 'none';
-                    toggleBtn.style.background = 'var(--chip)';
-                }
+            // Megnyitás / Bezárás a gombra kattintva
+            filterBtn.addEventListener('click', function (e) {
+                e.stopPropagation(); // Ne fusson le a body kattintás esemény
+                filterPanel.classList.toggle('open');
+            });
+
+            // Ha a menün belül kattintunk (pl. pipálunk egy checkboxot), NE záródjon be
+            filterPanel.addEventListener('click', function (e) {
+                e.stopPropagation();
+            });
+
+            // Bárhova máshova kattintva bezárja a panelt
+            document.addEventListener('click', function () {
+                filterPanel.classList.remove('open');
             });
         });
     </script>
