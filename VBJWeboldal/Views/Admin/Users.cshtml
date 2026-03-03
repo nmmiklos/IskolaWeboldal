@@ -21,6 +21,7 @@
                 <th>Név</th>
                 <th>Email</th>
                 <th>Regisztráció ideje</th>
+                <th>Műveletek</th>
             </tr>
         </thead>
         <tbody>
@@ -30,6 +31,13 @@
                     <td><strong>@user.FullName</strong></td>
                     <td>@user.Email</td>
                     <td>@user.CreatedAt.ToString("yyyy.MM.dd HH:mm")</td>
+                    <td>
+                        <form asp-action="DeleteUser" asp-route-id="@user.Id" method="post" style="display:inline;" onsubmit="return confirm('Biztosan törlöd ezt a felhasználót (@user.FullName)? Ezt a műveletet NEM lehet visszavonni!');">
+                            <button type="submit" style="background:none; border:none; color:red; cursor:pointer; font-weight:bold; padding: 5px 10px; border-radius: 4px; transition: 0.2s;" onmouseover="this.style.background='rgba(220,53,69,0.1)';" onmouseout="this.style.background='none';">
+                                🗑️ Törlés
+                            </button>
+                        </form>
+                    </td>
                 </tr>
             }
         </tbody>

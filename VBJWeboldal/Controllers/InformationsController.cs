@@ -228,9 +228,17 @@ namespace VBJWeboldal.Controllers
         {
             return View();
         }
-        public IActionResult Documents()
+        // DOKUMENTUMOK LEKÉRDEZÉSE
+        [HttpGet("Informations/Documents")]
+        public async Task<IActionResult> Documents()
         {
-            return View();
+            // Lekérjük az ÖSSZES publikus dokumentumot, a legújabbal kezdve
+            var publicDocs = await _context.Documents
+                .Where(d => d.IsPublic)
+                .OrderByDescending(d => d.UploadedAt)
+                .ToListAsync();
+
+            return View(publicDocs);
         }
         public IActionResult Education()
         {

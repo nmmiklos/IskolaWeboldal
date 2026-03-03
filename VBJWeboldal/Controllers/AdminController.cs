@@ -245,12 +245,31 @@ namespace VBJWeboldal.Controllers
         {
             if (ModelState.IsValid)
             {
+                string? profileImagePath = null;
+                if (model.ProfileImage != null && model.ProfileImage.Length > 0)
+                {
+                    string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "profiles");
+                    if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(model.ProfileImage.FileName);
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.ProfileImage.CopyToAsync(fileStream);
+                    }
+                    profileImagePath = "/uploads/profiles/" + uniqueFileName;
+                }
+
                 var user = new ApplicationUser
                 {
                     UserName = model.Email,
                     Email = model.Email,
                     FullName = model.FullName,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.Now,
+                    Title = model.Title,
+                    IsManagement = model.IsManagement,
+                    ProfileImagePath = profileImagePath
                 };
 
                 var result = await _userManager.CreateAsync(user, model.Password);
@@ -272,6 +291,39 @@ namespace VBJWeboldal.Controllers
             }
             return View(model);
         }
+
+        // FELHASZNÁLÓ TÖRLÉSE (POST)
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var userToDelete = await _userManager.FindByIdAsync(id);
+            if (userToDelete == null) return NotFound();
+
+            // BIZTONSÁGI ELLENŐRZÉS: Az Admin ne tudja törölni saját magát!
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser != null && currentUser.Id == userToDelete.Id)
+            {
+                // Itt akár egy hibaüzenetet is küldhetnénk, de most csak simán visszadobjuk
+                return RedirectToAction("Users");
+            }
+
+            // 1. Profilkép fizikai törlése a mappából (ha volt neki)
+            if (!string.IsNullOrEmpty(userToDelete.ProfileImagePath))
+            {
+                var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, userToDelete.ProfileImagePath.TrimStart('/'));
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
+            }
+
+            // 2. Felhasználó végleges törlése az adatbázisból Identity-vel
+            await _userManager.DeleteAsync(userToDelete);
+
+            return RedirectToAction("Users");
+        }
+
         //HEAD// --- ÓRAREND FELTÖLTÉSE (POST) ---
         [HttpPost]
         [Authorize(Roles = "Admin")]

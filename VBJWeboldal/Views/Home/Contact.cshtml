@@ -1,39 +1,97 @@
 ﻿@model IEnumerable<VBJWeboldal.Models.ApplicationUser>
 @{
     ViewData["Title"] = "Kapcsolat";
+
+    // Itt a HTML fájl elején szétválogatjuk a kapott listát két külön listára:
+    var management = Model.Where(u => u.IsManagement).ToList();
+    var staff = Model.Where(u => !u.IsManagement).ToList();
 }
 
-<div class="section">
+<div class="section" style="max-width: 1000px; margin: 0 auto; padding-bottom: 50px;">
     <div class="section-h">
         <div>
             <h3>Kapcsolatok</h3>
-            <p>Iskolánk tanárai és munkatársai</p>
+            <p>Iskolánk vezetősége, tanárai és munkatársai</p>
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 16px;">
-
-        @foreach (var user in Model)
-        {
-            <div class="box" style="padding: 25px; border-radius: 12px; text-align: center; ">
-                <div style="width: 60px; height: 60px; background: rgba(43,108,255,0.1); color: var(--link); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 15px auto;">
-                    👤
-                </div>
-
-                <h4 style="margin: 0 0 5px 0; color: var(--text-strong); font-size: 18px;">@user.FullName</h4>
-
-                <a href="mailto:@user.Email" class="btn-primary" style="display: inline-block; margin-top: 15px; text-decoration: none; padding: 8px 16px; font-size: 14px; border-radius: 20px;">
-                    ✉️ @user.Email
-                </a>
-            </div>
-        }
-
-    </div>
-
-    @if (!Model.Any())
+    @if (management.Any())
     {
-        <div style="padding: 16px; text-align: center;">
-            <p style="color: var(--muted);">Jelenleg nincsenek megjeleníthető munkatársak.</p>
+        <div style="margin-top: 30px; margin-bottom: 25px; border-bottom: 2px solid var(--line); padding-bottom: 10px;">
+            <h4 style="color: var(--text-strong); font-size: 24px; margin: 0; display: flex; align-items: center; gap: 10px;">
+                 Vezetőség
+            </h4>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+            @foreach (var user in management)
+            {
+                <div class="box" style="padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(226,87,76,0.08); border: 1px solid rgba(226,87,76,0.1);">
+                    @if (!string.IsNullOrEmpty(user.ProfileImagePath))
+                    {
+                        <img src="@user.ProfileImagePath" alt="@user.FullName" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 15px auto; display: block; border: 3px solid #e2574c; box-shadow: 0 4px 10px rgba(226,87,76,0.2);" />
+                    }
+                    else
+                    {
+                        <div style="width: 80px; height: 80px; background: rgba(226,87,76,0.1); color: #e2574c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 15px auto; border: 3px solid transparent;">
+                            👑
+                        </div>
+                    }
+
+                    <h4 style="margin: 0 0 5px 0; color: var(--text-strong); font-size: 19px;">@user.FullName</h4>
+                    <p style="margin: 0 0 15px 0; color: #e2574c; font-size: 14px; font-weight: bold;">
+                        @(string.IsNullOrWhiteSpace(user.Title) ? "Vezetőségi tag" : user.Title)
+                    </p>
+
+                    <a href="mailto:@user.Email" class="btn-primary" style="display: inline-block; text-decoration: none; padding: 8px 16px; font-size: 14px; border-radius: 20px; background: #e2574c; border-color: #e2574c;">
+                        ✉️ @user.Email
+                    </a>
+                </div>
+            }
+        </div>
+    }
+
+    @if (staff.Any())
+    {
+        <div style="margin-top: 50px; margin-bottom: 25px; border-bottom: 2px solid var(--line); padding-bottom: 10px;">
+            <h4 style="color: var(--text-strong); font-size: 24px; margin: 0; display: flex; align-items: center; gap: 10px;">
+                 Tanáraink és Munkatársaink
+            </h4>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+            @foreach (var user in staff)
+            {
+                <div class="box" style="padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                    @if (!string.IsNullOrEmpty(user.ProfileImagePath))
+                    {
+                        <img src="@user.ProfileImagePath" alt="@user.FullName" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 15px auto; display: block; border: 3px solid #e2574c; box-shadow: 0 4px 10px rgba(226,87,76,0.2);" />
+                    }
+                    else
+                    {
+                        <div style="width: 80px; height: 80px; background: rgba(226,87,76,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 15px auto; border: 3px solid transparent;">
+                            👤
+                        </div>
+                    }
+
+                    <h4 style="margin: 0 0 5px 0; color: var(--text-strong); font-size: 18px;">@user.FullName</h4>
+
+                    <p style="margin: 0 0 15px 0; color: var(--muted); font-size: 14px; font-weight: bold;">
+                        @(string.IsNullOrWhiteSpace(user.Title) ? "Tanár / Munkatárs" : user.Title)
+                    </p>
+
+                    <a href="mailto:@user.Email" class="btn-primary" style="display: inline-block; text-decoration: none; padding: 8px 16px; font-size: 14px; border-radius: 20px;">
+                        ✉️ @user.Email
+                    </a>
+                </div>
+            }
+        </div>
+    }
+
+    @if (!management.Any() && !staff.Any())
+    {
+        <div style="padding: 40px; text-align: center; background: rgba(0,0,0,0.02); border-radius: 12px; margin-top: 20px;">
+            <p style="color: var(--muted); margin: 0;">Jelenleg nincsenek megjeleníthető munkatársak.</p>
         </div>
     }
 </div>

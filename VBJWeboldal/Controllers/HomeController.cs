@@ -38,11 +38,7 @@ public class HomeController : Controller
             .Take(3)
             .ToListAsync();
         // 4. Közelgõ események
-        var upcomingEvents = await _context.Events
-                                           .Where(e => e.EventDate >= DateTime.Now)
-                                           .OrderBy(e => e.EventDate)
-                                           .Take(3)
-                                           .ToListAsync();
+        var upcomingEvents = await _context.Events.Where(e => e.EventDate >= DateTime.Now).OrderBy(e => e.EventDate).Take(2).ToListAsync();
         //közelgõ események rész
         // --- AUTOMATIKUS TÖRLÉS LOGIKA (Lusta törlés) ---
         var pastEvents = await _context.Events.Where(e => e.EventDate.Date < DateTime.Now.Date).ToListAsync();
@@ -80,28 +76,30 @@ public class HomeController : Controller
     [Route("/kapcsolat")]
     public async Task<IActionResult> Contact()
     {
-        //Lekérjük a három engedélyezett szerepkör tagjait
+        // 1. Lekérjük az ÖSSZES érintett szerepkört (most már az Adminokat is idevesszük a listába)
+        var admins = await _userManager.GetUsersInRoleAsync("Admin");
         var editors = await _userManager.GetUsersInRoleAsync("Editor");
         var readers = await _userManager.GetUsersInRoleAsync("Reader");
         var galleryManagers = await _userManager.GetUsersInRoleAsync("GalleryManager");
 
-        //Összevonjuk õket, és kiszûrjük a duplikációkat
-        var allStaff = editors.Concat(readers).Concat(galleryManagers)
+        // 2. Összevonjuk õket, és kiszûrjük a duplikációkat
+        var allStaff = admins.Concat(editors).Concat(readers).Concat(galleryManagers)
                               .GroupBy(u => u.Id)
                               .Select(g => g.First())
                               .ToList();
 
-        //Lekérjük az Adminokat, hogy el tudjuk rejteni õket
-        var admins = await _userManager.GetUsersInRoleAsync("Admin");
+        // 3. Eltároljuk az Adminok ID-ját, hogy tudjuk, kik õk
         var adminIds = admins.Select(a => a.Id).ToHashSet();
 
-        //Kiszûrjük az Adminokat, és név szerint sorba rendezzük a maradékot
+        // 4. AZ ÚJ SZÛRÉSI LOGIKA:
+        // - Ha a felhasználó NEM admin -> mindenképp listázzuk.
+        // - Ha a felhasználó ADMIN -> CSAK AKKOR listázzuk, ha van kitöltött Titulusa (!string.IsNullOrWhiteSpace)
         var displayStaff = allStaff
-            .Where(u => !adminIds.Contains(u.Id))
+            .Where(u => !adminIds.Contains(u.Id) || !string.IsNullOrWhiteSpace(u.Title))
             .OrderBy(u => u.FullName)
             .ToList();
 
-        //Átadjuk a kész listát a HTML nézetnek
+        // Átadjuk a kész listát a HTML nézetnek
         return View(displayStaff);
     }
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

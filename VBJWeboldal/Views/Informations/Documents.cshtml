@@ -1,5 +1,37 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<VBJWeboldal.Models.Document>
 @{
+    ViewData["Title"] = "Publikus Dokumentumok";
 }
+
+<div class="section" style="max-width: 900px; margin: 0 auto;">
+    <div class="section-h">
+        <div>
+            <h3>📄 Irattár</h3>
+            <p>Iskolánk nyilvános dokumentumai, szabályzatai és nyomtatványai</p>
+        </div>
+    </div>
+
+    <div style="padding: 20px;">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            @foreach (var doc in Model)
+            {
+                <a href="@doc.FilePath" target="_blank" class="linkbtn" style="text-decoration: none; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border: 1px solid var(--line); border-radius: 8px; background: rgba(0,0,0,0.02); transition: 0.2s;">
+                    <span style="line-height: 1.5;">
+                        <strong style="color: var(--text-strong); font-size: 16px;">@doc.Title</strong><br>
+                        <small style="color: var(--muted); font-weight: normal; font-size: 13px;">
+                            @doc.FileExtension.ToUpper().Replace(".", "") • @(doc.FileSize / 1024) KB • Feltöltve: @doc.UploadedAt.ToString("yyyy.MM.dd")
+                        </small>
+                    </span>
+                    <span style="font-size: 24px; color: var(--link);">⬇️</span>
+                </a>
+            }
+
+            @if (!Model.Any())
+            {
+                <div style="text-align: center; padding: 40px; background: rgba(0,0,0,0.02); border-radius: 8px;">
+                    <p style="color: var(--muted); margin: 0;">Jelenleg nincsenek feltöltött publikus dokumentumok.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

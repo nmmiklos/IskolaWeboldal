@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace VBJWeboldal.ViewModels
 {
@@ -17,5 +18,8 @@ namespace VBJWeboldal.ViewModels
 
         [Required(ErrorMessage = "Válassz jogosultságot!")]
         public string Role { get; set; }
+        public IFormFile? ProfileImage { get; set; }
+        public string? Title { get; set; }
+        public bool IsManagement { get; set; }
     }
 }

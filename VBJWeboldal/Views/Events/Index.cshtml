@@ -1,12 +1,45 @@
-﻿@{
+﻿@model IEnumerable<VBJWeboldal.Models.Event>
+@{
     ViewData["Title"] = "Események";
 }
 
-<div class="box">
-    <div class="box-h">
-        <h4>Közelgő események</h4>
+<div class="section" style="max-width: 900px; margin: 0 auto;">
+    <div class="section-h">
+        <div>
+            <h3>📅 Közelgő Események</h3>
+            <p>Iskolánk tervezett programjai és fontos dátumai</p>
+        </div>
     </div>
-    <div class="box-body">
-        <!-- reuse .event blocks -->
+
+    <div style="padding: 20px;">
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            @foreach (var ev in Model)
+            {
+                <div style="display: flex; gap: 20px; align-items: flex-start; padding: 20px; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+
+                    <div style="background: rgba(226, 87, 76, 0.1); color: #e2574c; padding: 15px; border-radius: 8px; text-align: center; min-width: 60px; flex-shrink: 0;">
+                        <div style="font-size: 14px; font-weight: bold; text-transform: uppercase;">@ev.EventDate.ToString("MMM")</div>
+                        <div style="font-size: 26px; font-weight: 900; line-height: 1; margin-top: 5px;">@ev.EventDate.ToString("dd")</div>
+                    </div>
+
+                    <div style="padding-top: 5px;">
+                        <h4 style="font-weight: bold; color: var(--text-strong); font-size: 18px; margin: 0 0 8px 0;">
+                            @ev.Title
+                        </h4>
+                        <p style="font-size: 15px; color: var(--text); line-height: 1.5; margin: 0;">
+                            @ev.Description
+                        </p>
+                    </div>
+
+                </div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div style="text-align: center; padding: 40px; background: rgba(0,0,0,0.02); border-radius: 8px;">
+                    <p style="color: var(--muted); margin: 0; font-size: 15px;">Jelenleg nincsenek közelgő események rögzítve.</p>
+                </div>
+            }
+        </div>
     </div>
 </div>
