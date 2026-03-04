@@ -77,34 +77,44 @@
     <div>
         <section class="section" id="szakok" style="margin-bottom:12px;">
             <div class="section-h">
-                <h3>Szakjaink</h3>
+                <h3>Induló Ágazataink</h3>
             </div>
 
             <div class="szak-grid">
 
                 <div class="szak-card">
-                    <img src="~/rootimages/eletko-icon.png" asp-append-version="true" alt="Elektronika és elektrotechnika">
-                    <h5>Elektronika és elektrotechnika</h5>
+                    <a asp-controller="Home" asp-action="Elektrotechnika">
+                        <img src="~/rootimages/eletko-icon.png" asp-append-version="true" alt="Elektronika és elektrotechnika">
+                        <h5>Elektronika és elektrotechnika</h5>
+                    </a>
                 </div>
 
                 <div class="szak-card">
-                    <img src="~/rootimages/gepesz-icon.png" asp-append-version="true" alt="Gépészet">
-                    <h5>Gépészet</h5>
+                    <a asp-controller="Home" asp-action="Gepeszet">
+                        <img src="~/rootimages/gepesz-icon.png" asp-append-version="true" alt="Gépészet">
+                        <h5>Gépészet</h5>
+                    </a>
                 </div>
 
                 <div class="szak-card">
-                    <img src="~/rootimages/info-icon.png" asp-append-version="true" alt="Informatika és távközlés">
-                    <h5>Informatika és távközlés</h5>
+                    <a asp-controller="Home" asp-action="Informatika">
+                       <img src="~/rootimages/info-icon.png" asp-append-version="true" alt="Informatika és távközlés">
+                        <h5>Informatika és távközlés</h5>
+                    </a>
                 </div>
 
                 <div class="szak-card">
-                    <img src="~/rootimages/kozg-icon.png" asp-append-version="true" alt="Gzadálkodás és menedzsment">
-                    <h5>Gzadálkodás és menedzsmen</h5>
+                    <a asp-controller="Home" asp-action="Kozgazdalkodas">
+                        <img src="~/rootimages/kozg-icon.png" asp-append-version="true" alt="Gzadálkodás és menedzsment">
+                        <h5>Gazdálkodás és menedzsmen</h5>
+                    </a>
                 </div>
 
                 <div class="szak-card">
-                    <img src="~/rootimages/gimi-icon.png" asp-append-version="true" alt="Gimnázium">
-                    <h5>Gimnázium</h5>
+                    <a asp-controller="Home" asp-action="Gimnazium">
+                        <img src="~/rootimages/gimi-icon.png" asp-append-version="true" alt="Gimnázium">
+                        <h5>Gimnázium</h5>
+                    </a>
                 </div>
 
             </div>

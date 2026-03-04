@@ -1138,3 +1138,62 @@ body,.frame,.section,.box,.card {
         grid-template-columns: 1fr;
     }
 }
+
+/* 
+   GÉPÉSZET odlal
+*/
+
+/* Hero szín */
+.hero-gepeszet {
+    background: radial-gradient(900px 360px at 70% 10%, rgba(255,255,255,.16), transparent 55%), linear-gradient(135deg, #7c2d12, #3b0f0f);
+}
+
+/* Hero kép */
+.hero-illustration-gepeszet {
+    background: url('/rootimages/gepesz-index.jpg') center/cover no-repeat;
+}
+/* 
+   Info odlal
+*/
+
+.hero-info {
+    background: radial-gradient(900px 360px at 70% 10%, rgba(255,255,255,.16), transparent 55%), linear-gradient(135deg, #7c2d12, #3b0f0f);
+}
+
+.hero-illustration-info {
+    background: url('/rootimages/info-index.jpg') center/cover no-repeat;
+}
+/* 
+   kozg odlal
+*/
+.hero-kozg {
+    background: radial-gradient(900px 360px at 70% 10%, rgba(255,255,255,.16), transparent 55%), linear-gradient(135deg, #7c2d12, #3b0f0f);
+}
+
+.hero-illustration-kozg {
+    background: url('/rootimages/kozg-index.jpg') center/cover no-repeat;
+}
+
+/* 
+   ELEKTRO odlal
+*/
+
+.hero-elektro {
+    background: radial-gradient(900px 360px at 70% 10%, rgba(255,255,255,.16), transparent 55%), linear-gradient(135deg, #7c2d12, #3b0f0f);
+}
+
+.hero-illustration-elektro {
+    background: url('/rootimages/elektro-index.jpg') center/cover no-repeat;
+}
+
+/* 
+   gimi odlal
+*/
+
+.hero-gimi {
+    background: radial-gradient(900px 360px at 70% 10%, rgba(255,255,255,.16), transparent 55%), linear-gradient(135deg, #7c2d12, #3b0f0f);
+}
+
+.hero-illustration-gimi {
+    background: url('/rootimages/gimi-index.jpg') center/cover no-repeat;
+}
