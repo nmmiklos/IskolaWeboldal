@@ -107,4 +107,24 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+	public IActionResult Kozgazdalkodas()
+	{
+		return View();
+	}
+	public IActionResult Gimnazium()
+	{
+		return View();
+	}
+	public IActionResult Elektrotechnika()
+	{
+		return View();
+	}
+	public IActionResult Gepeszet()
+	{
+		return View();
+	}
+	public IActionResult Informatika()
+	{
+		return View();
+	}
 }
