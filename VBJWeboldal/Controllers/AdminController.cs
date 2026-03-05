@@ -423,6 +423,8 @@ namespace VBJWeboldal.Controllers
                         GalleryId = galleryId
                     };
                     _context.Images.Add(image);
+                    //6Le6goAsAAAAAPo3Xw8vjmzDpdKmGZRc3jGTRC8E
+
                 }
             }
 
