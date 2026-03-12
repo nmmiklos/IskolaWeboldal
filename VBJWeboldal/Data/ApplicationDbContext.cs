@@ -18,6 +18,7 @@ namespace VBJWeboldal.Data
         public DbSet<Document> Documents { get; set; }
         public DbSet<Gallery> Galleries { get; set; }
         public DbSet<Image> Images { get; set; }
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
 
         // Később ide jöhet az Article és Message is!
     }

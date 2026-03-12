@@ -1,6 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using VBJWeboldal.Data;
+using VBJWeboldal.Filters;
 using VBJWeboldal.Models;
 
 namespace VBJWeboldal
@@ -26,7 +27,11 @@ namespace VBJWeboldal
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllersWithViews(options =>
+            {
+                // Ez a sor garantálja, hogy minden kattintásnál lefusson a logolónk!
+                options.Filters.Add<ActivityLogFilter>();
+            });
 
             var app = builder.Build();
 

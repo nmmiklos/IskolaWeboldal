@@ -37,7 +37,8 @@
             color: var(--admin-text);
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            height: 100vh; /* min-height helyett fix magasság */
+            overflow: hidden; /* Kikapcsoljuk az egész oldalas görgetést */
         }
 
         /* --- TOP NAVBAR --- */
@@ -100,6 +101,7 @@
         .admin-container {
             display: flex;
             flex: 1;
+            overflow: hidden; /* Ebbe a dobozba zárjuk be a görgetést */
         }
 
         /* --- SIDEBAR --- */
@@ -108,6 +110,9 @@
             background-color: white;
             border-right: 1px solid var(--admin-border);
             padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Ha nagyon sok menüpontod lesz kis monitoron, ez a sáv is tudjon önállóan görögni */
         }
 
         .sidebar-menu {
@@ -138,6 +143,7 @@
         .main-content {
             flex: 1;
             padding: 30px;
+            overflow-y: auto; /* Ez a varázslat: CSAK EZ a rész fog görgetni! */
         }
 
         /* Stats Cards */
@@ -247,12 +253,12 @@
         }
 
         /* Buttons */
-        .btn{
+        .btn {
             font-weight: normal !important;
         }
-        
+
         .btn-primary, .btn {
-            display: inline-block !important; 
+            display: inline-block !important;
             background-color: #3b66b5;
             color: white;
             border: none;
@@ -359,7 +365,7 @@
             document.body.classList.add('dark');
         }
     </script>
-    
+
     <nav class="topbar">
         <a href="/" style="text-decoration: none; color: white;">
             <div class="topbar-logo">🎓 Iskola Weboldal</div>
@@ -391,6 +397,20 @@
                     <li><a href="/Admin/Users">👥 Felhasználók</a></li>
                 }
             </ul>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <div style="margin-top: auto; border-top: 1px solid var(--admin-border);">
+                    <ul class="sidebar-menu">
+                        <li>
+                            <a href="/Admin/Logs" style="font-weight: bold;">
+                                🕵️ Rendszernapló
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            }
+
         </aside>
 
         <main class="main-content">
