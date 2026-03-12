@@ -1,0 +1,46 @@
+﻿@model IEnumerable<VBJWeboldal.Models.ActivityLog>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Rendszernapló (Audit Log)";
+}
+
+<div style="max-width: 1200px; margin: 40px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="color: var(--text-strong); margin: 0;">🕵️ Rendszernapló</h2>
+        <a href="/Admin/Index" class="btn" style="text-decoration: none;">← Vissza az Irányítópultra</a>
+    </div>
+
+    <p style="color: var(--muted); margin-bottom: 20px;">A legutóbbi 300 felhasználói esemény listája.</p>
+
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background: rgba(43,108,255,0.1); color: var(--text-strong);">
+                    <th style="padding: 12px; border-bottom: 2px solid var(--line);">Dátum & Idő</th>
+                    <th style="padding: 12px; border-bottom: 2px solid var(--line);">Felhasználó</th>
+                    <th style="padding: 12px; border-bottom: 2px solid var(--line);">Esemény / Útvonal</th>
+                    <th style="padding: 12px; border-bottom: 2px solid var(--line);">IP Cím</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model)
+                {
+                    <tr style="border-bottom: 1px solid var(--line);">
+                        <td style="padding: 12px; font-size: 14px; color: var(--muted);">@log.Timestamp.ToString("yyyy.MM.dd. HH:mm:ss")</td>
+                        <td style="padding: 12px; font-weight: bold;">@log.UserFullName</td>
+                        <td style="padding: 12px; font-size: 14px;">
+                            <span style="background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; font-family: monospace;">@log.ActionType</span><br />
+                            <a href="@log.Url" target="_blank" style="color: var(--link); text-decoration: none; font-size: 13px;">@log.Url</a>
+                        </td>
+                        <td style="padding: 12px; font-size: 13px; font-family: monospace; color: var(--muted);">@log.IpAddress</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (!Model.Any())
+        {
+            <div style="text-align: center; padding: 30px; color: var(--muted);">Még nincsenek rögzített események.</div>
+        }
+    </div>
+</div>

@@ -588,7 +588,19 @@ namespace VBJWeboldal.Controllers
             }
             return RedirectToAction("Events");
         }
+        //Logolás:
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Logs()
+        {
+            // Lekérjük a legutóbbi 300 eseményt (hogy ne fagyjon le az oldal, ha már 100.000 log lesz)
+            var logs = await _context.ActivityLogs
+                .OrderByDescending(l => l.Timestamp)
+                .Take(300)
+                .ToListAsync();
 
+            return View(logs);
+        }
 
 
     }
