@@ -70,29 +70,31 @@ namespace VBJWeboldal.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            // 1. reCAPTCHA ELLENŐRZÉS
-            var captchaResponse = Request.Form["g-recaptcha-response"];
 
-            // Ha a felhasználó be sem pipálta a dobozt
-            if (string.IsNullOrEmpty(captchaResponse))
-            {
-                ModelState.AddModelError(string.Empty, "Kérjük, igazold, hogy nem vagy robot!");
-                return View(model);
-            }
+            //// 1. reCAPTCHA ELLENŐRZÉS
+            //var captchaResponse = Request.Form["g-recaptcha-response"];
 
-            // Ha bepipálta, leellenőrizzük a Google szerverén, hogy érvényes-e
-            var secretKey = _configuration["ReCaptcha:SecretKey"];
-            using (var client = new HttpClient())
-            {
-                var response = await client.PostAsync($"https://www.google.com/recaptcha/api/siteverify?secret={secretKey}&response={captchaResponse}", null);
-                var jsonString = await response.Content.ReadAsStringAsync();
+            //// Ha a felhasználó be sem pipálta a dobozt
+            //if (string.IsNullOrEmpty(captchaResponse))
+            //{
+            //    ModelState.AddModelError(string.Empty, "Kérjük, igazold, hogy nem vagy robot!");
+            //    return View(model);
+            //}
 
-                if (!jsonString.Contains("\"success\": true"))
-                {
-                    ModelState.AddModelError(string.Empty, "A robot-ellenőrzés elbukott. Próbáld újra!");
-                    return View(model);
-                }
-            }
+            //// Ha bepipálta, leellenőrizzük a Google szerverén, hogy érvényes-e
+            //var secretKey = _configuration["ReCaptcha:SecretKey"];
+            //using (var client = new HttpClient())
+            //{
+            //    var response = await client.PostAsync($"https://www.google.com/recaptcha/api/siteverify?secret={secretKey}&response={captchaResponse}", null);
+            //    var jsonString = await response.Content.ReadAsStringAsync();
+
+            //    if (!jsonString.Contains("\"success\": true"))
+            //    {
+            //        ModelState.AddModelError(string.Empty, "A robot-ellenőrzés elbukott. Próbáld újra!");
+            //        return View(model);
+            //    }
+            //}
+
             //AZ EREDETI BEJELENTKEZÉSI LOGIKA
             if (ModelState.IsValid)
             {
