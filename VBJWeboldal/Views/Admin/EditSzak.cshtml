@@ -1,0 +1,34 @@
+﻿@model VBJWeboldal.Models.Szak
+
+<form method="post">
+
+    <div>
+        <label>Név</label>
+        <input asp-for="Name" />
+    </div>
+
+    <div>
+        <label>Slug</label>
+        <input asp-for="Slug" />
+    </div>
+
+    <div>
+        <label>HeroClass</label>
+        <input asp-for="HeroClass" />
+    </div>
+
+    <div>
+        <label>HeroImageClass</label>
+        <input asp-for="HeroImageClass" />
+    </div>
+
+    <div>
+        <label>Tartalom</label>
+
+<textarea asp-for="PageContent" rows="20"></textarea>
+
+    </div>
+
+    <button type="submit">Mentés</button>
+
+</form>

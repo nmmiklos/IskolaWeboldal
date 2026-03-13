@@ -1,0 +1,11 @@
+﻿@model VBJWeboldal.ViewModels.SzakViewModel
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="content">
+
+    @await Html.PartialAsync($"Szakok/{Model.PartialName}")
+
+</div>

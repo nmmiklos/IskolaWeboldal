@@ -107,24 +107,60 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
-	public IActionResult Kozgazdalkodas()
-	{
-		return View();
-	}
-	public IActionResult Gimnazium()
-	{
-		return View();
-	}
-	public IActionResult Elektrotechnika()
-	{
-		return View();
-	}
-	public IActionResult Gepeszet()
-	{
-		return View();
-	}
-	public IActionResult Informatika()
-	{
-		return View();
-	}
+    [Route("/szak/{id}")]
+    public IActionResult Szak(string id)
+    {
+        var szakok = new Dictionary<string, SzakViewModel>()
+        {
+            ["gepeszet"] = new SzakViewModel
+            {
+                Name = "Gépészet",
+                Description = "A gépészet ágazatban modern technológiákkal és ipari ismeretekkel ismerkednek meg a diákok.",
+                HeroClass = "hero-gepeszet",
+                HeroImageClass = "hero-illustration-gepeszet",
+                 PartialName = "Gepeszet"
+            },
+
+            ["informatika"] = new SzakViewModel
+            {
+                Name = "Informatika és távközlés",
+                Description = "Programozás, hálózatok és modern IT rendszerek tanulása.",
+                HeroClass = "hero-info",
+                HeroImageClass = "hero-illustration-info",
+                PartialName = "Informatika"
+            },
+
+            ["elektro"] = new SzakViewModel
+            {
+                Name = "Elektronika és elektrotechnika",
+                Description = "Elektronikai rendszerek, áramkörök és modern technológia.",
+                HeroClass = "hero-elektro",
+                HeroImageClass = "hero-illustration-elektro",
+                PartialName = "Elektrotechnika"
+            },
+
+            ["kozg"] = new SzakViewModel
+            {
+                Name = "Gazdálkodás és menedzsment",
+                Description = "Gazdasági és üzleti alapismeretek modern környezetben.",
+                HeroClass = "hero-kozg",
+                HeroImageClass = "hero-illustration-kozg",
+                PartialName = "Kozgazdalkodas"
+            },
+
+            ["gimi"] = new SzakViewModel
+            {
+                Name = "Gimnázium",
+                Description = "Általános mûveltséget és továbbtanulási lehetõséget biztosító képzés.",
+                HeroClass = "hero-gimi",
+                HeroImageClass = "hero-illustration-gimi",
+                PartialName = "Gimnazium"
+            }
+        };
+
+        if (!szakok.ContainsKey(id))
+            return NotFound();
+
+        return View("Szak", szakok[id]);
+    }
 }
