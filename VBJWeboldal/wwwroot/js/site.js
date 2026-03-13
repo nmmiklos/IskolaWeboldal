@@ -20,10 +20,10 @@
 
 
     const esemenyekBtn = document.getElementById("esemenyekBtn");
-    console.log("nem jo elott")
+    //console.log("nem jo elott")
 
     esemenyekBtn.addEventListener("click", function () {
-        console.log("nem jo utan")
+        //console.log("nem jo utan")
         const target = document.getElementById("kozelgoEsemenyek");
         if (!target) return;
 
@@ -38,7 +38,7 @@
         target.classList.add("highlight-flash");
     });
     hirekBtn.addEventListener("click", function () {
-        console.log("nem jo utan")
+        //console.log("nem jo utan")
         const target = document.getElementById("hirek");
         if (!target) return;
 
