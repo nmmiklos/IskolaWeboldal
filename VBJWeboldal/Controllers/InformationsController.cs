@@ -10,7 +10,8 @@ using Microsoft.AspNetCore.Identity;
 using VBJWeboldal.Data;
 using VBJWeboldal.Models;
 using VBJWeboldal.ViewModels;
-using ClosedXML.Excel;
+using Microsoft.Extensions.Caching.Memory;
+using System;
 
 namespace VBJWeboldal.Controllers
 {
@@ -19,23 +20,24 @@ namespace VBJWeboldal.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IMemoryCache _cache; // <-- Ezt adjuk hozzá!
 
-        // Injektáljuk az Adatbázist és a UserManagert is!
         public InformationsController(
             IWebHostEnvironment env,
             ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IMemoryCache cache) // <-- Ezt is be kell kérni!
         {
             _env = env;
             _context = context;
             _userManager = userManager;
+            _cache = cache; // <-- És elmenteni!
         }
 
-        // --- KERESÉS FUNKCIÓ (Frissített) ---
+        // --- KERESÉS FUNKCIÓ ---
         [HttpGet]
         public async Task<IActionResult> Search(string q, bool searchNews, bool searchEvents, bool searchDocuments, bool searchGalleries, bool searchUsers, bool filterSubmitted = false)
         {
-            // Ha a főoldalról jön (nincs szűrő elküldve), alapértelmezetten mindenben keressen!
             if (!filterSubmitted)
             {
                 searchNews = searchEvents = searchDocuments = searchGalleries = searchUsers = true;
@@ -51,38 +53,15 @@ namespace VBJWeboldal.Controllers
                 SearchUsers = searchUsers
             };
 
-            if (string.IsNullOrWhiteSpace(q))
-            {
-                return View(vm);
-            }
+            if (string.IsNullOrWhiteSpace(q)) return View(vm);
 
             string lowerQ = q.ToLower();
 
-            // 1. Hírek
-            if (searchNews)
-            {
-                vm.NewsResults = await _context.News.Where(n => n.IsPublished && (n.Title.ToLower().Contains(lowerQ) || n.Content.ToLower().Contains(lowerQ))).OrderByDescending(n => n.PublishedAt).ToListAsync();
-            }
+            if (searchNews) vm.NewsResults = await _context.News.Where(n => n.IsPublished && (n.Title.ToLower().Contains(lowerQ) || n.Content.ToLower().Contains(lowerQ))).OrderByDescending(n => n.PublishedAt).ToListAsync();
+            if (searchEvents) vm.EventResults = await _context.Events.Where(e => e.Title.ToLower().Contains(lowerQ) || e.Description.ToLower().Contains(lowerQ)).OrderBy(e => e.EventDate).ToListAsync();
+            if (searchDocuments) vm.DocumentResults = await _context.Documents.Where(d => d.IsPublic && d.Title.ToLower().Contains(lowerQ)).OrderByDescending(d => d.UploadedAt).ToListAsync();
+            if (searchGalleries) vm.GalleryResults = await _context.Galleries.Where(g => g.Title.ToLower().Contains(lowerQ)).ToListAsync();
 
-            // 2. Események
-            if (searchEvents)
-            {
-                vm.EventResults = await _context.Events.Where(e => e.Title.ToLower().Contains(lowerQ) || e.Description.ToLower().Contains(lowerQ)).OrderBy(e => e.EventDate).ToListAsync();
-            }
-
-            // 3. Dokumentumok
-            if (searchDocuments)
-            {
-                vm.DocumentResults = await _context.Documents.Where(d => d.IsPublic && d.Title.ToLower().Contains(lowerQ)).OrderByDescending(d => d.UploadedAt).ToListAsync();
-            }
-
-            // 4. Galéria
-            if (searchGalleries)
-            {
-                vm.GalleryResults = await _context.Galleries.Where(g => g.Title.ToLower().Contains(lowerQ)).ToListAsync();
-            }
-
-            // 5. Kapcsolatok (Tanárok)
             if (searchUsers)
             {
                 var editors = await _userManager.GetUsersInRoleAsync("Editor");
@@ -93,112 +72,15 @@ namespace VBJWeboldal.Controllers
                 var admins = await _userManager.GetUsersInRoleAsync("Admin");
                 var adminIds = admins.Select(a => a.Id).ToHashSet();
 
-                vm.UserResults = allStaff.Where(u => !adminIds.Contains(u.Id) && (u.FullName.Contains(q, System.StringComparison.OrdinalIgnoreCase) || u.Email.Contains(q, System.StringComparison.OrdinalIgnoreCase))).OrderBy(u => u.FullName).ToList();
+                vm.UserResults = allStaff.Where(u => !adminIds.Contains(u.Id) && (u.FullName.Contains(q, StringComparison.OrdinalIgnoreCase) || u.Email.Contains(q, StringComparison.OrdinalIgnoreCase))).OrderBy(u => u.FullName).ToList();
             }
 
             return View(vm);
         }
 
+        // --- ÓRAREND FUNKCIÓK ---
         public IActionResult Timetable() => View();
 
-        // -------------------------------------------------------------
-        // SEGÉDFÜGGVÉNY: Beolvassa a fájlt (XML vagy XLSX), és egy közös listát ad vissza
-        // -------------------------------------------------------------
-        private (List<LessonViewModel> Lessons, Dictionary<string, string> HomeroomTeachers) GetTimetableDataFromFile()
-        {
-            var lessons = new List<LessonViewModel>();
-            var hrTeachers = new Dictionary<string, string>();
-
-            string xmlPath = Path.Combine(_env.WebRootPath, "uploads", "timetable.xml");
-            string xlsxPath = Path.Combine(_env.WebRootPath, "uploads", "timetable.xlsx");
-
-            // --- EXCEL FELDOLGOZÁS ---
-            if (System.IO.File.Exists(xlsxPath))
-            {
-                using (var workbook = new XLWorkbook(xlsxPath))
-                {
-                    // 1. Osztályfőnökök beolvasása (HomeroomTeachers munkalap)
-                    if (workbook.TryGetWorksheet("HomeroomTeachers", out var hrSheet))
-                    {
-                        var rows = hrSheet.RowsUsed().Skip(1); // Fejléc átugrása
-                        foreach (var row in rows)
-                        {
-                            var className = row.Cell(1).GetString();
-                            var teacherName = row.Cell(2).GetString();
-                            if (!string.IsNullOrEmpty(className)) hrTeachers[className] = teacherName;
-                        }
-                    }
-
-                    // 2. Órák beolvasása (Lessons munkalap)
-                    if (workbook.TryGetWorksheet("Lessons", out var lessonSheet))
-                    {
-                        var rows = lessonSheet.RowsUsed().Skip(1); // Fejléc átugrása
-                        foreach (var row in rows)
-                        {
-                            lessons.Add(new LessonViewModel
-                            {
-                                Day = row.Cell(1).GetString(),
-                                Period = row.Cell(2).GetValue<int>(),
-                                ClassName = row.Cell(3).GetString(),
-                                Subject = row.Cell(4).GetString(),
-                                Teacher = row.Cell(5).GetString(),
-                                Room = row.Cell(6).GetString(),
-                                Group = row.Cell(7).GetString()
-                            });
-                        }
-                    }
-                }
-            }
-            // --- XML FELDOLGOZÁS (Visszafelé kompatibilitás) ---
-            else if (System.IO.File.Exists(xmlPath))
-            {
-                var doc = XDocument.Load(xmlPath);
-
-                foreach (var ht in doc.Descendants("Class"))
-                {
-                    hrTeachers[ht.Attribute("Name")?.Value ?? ""] = ht.Attribute("Teacher")?.Value ?? "";
-                }
-
-                foreach (var l in doc.Descendants("Lesson"))
-                {
-                    lessons.Add(new LessonViewModel
-                    {
-                        Day = l.Attribute("Day")?.Value,
-                        Period = int.Parse(l.Attribute("Period")?.Value ?? "0"),
-                        ClassName = l.Attribute("Class")?.Value,
-                        Subject = l.Attribute("Subject")?.Value,
-                        Teacher = l.Attribute("Teacher")?.Value,
-                        Room = l.Attribute("Room")?.Value,
-                        Group = l.Attribute("Group")?.Value
-                    });
-                }
-            }
-
-            return (lessons, hrTeachers);
-        }
-
-        // -------------------------------------------------------------
-        // AJAX: Opciók lekérése
-        // -------------------------------------------------------------
-        [HttpGet]
-        public IActionResult GetTimetableOptions(string type)
-        {
-            var data = GetTimetableDataFromFile();
-            var options = new List<string>();
-
-            switch (type)
-            {
-                case "Class": options = data.Lessons.Select(l => l.ClassName).Distinct().ToList(); break;
-                case "Teacher": options = data.Lessons.Select(l => l.Teacher).Distinct().ToList(); break;
-                case "Room": options = data.Lessons.Select(l => l.Room).Distinct().ToList(); break;
-            }
-
-            return Json(options.Where(o => !string.IsNullOrEmpty(o)).OrderBy(x => x));
-        }
-
-        // -------------------------------------------------------------
-        // AJAX: Órarend adatok lekérése
-        // -------------------------------------------------------------
         [HttpGet]
         public IActionResult GetTimetableData(string type, string value)
         {
@@ -210,16 +92,135 @@ namespace VBJWeboldal.Controllers
                 result.HomeroomTeacher = data.HomeroomTeachers[value];
             }
 
+            // Ha például több osztályhoz is be van írva ugyanaz az óra (pl. nyelvi csoportok), a "Contains" miatt mindegyiknél meg fog jelenni!
             switch (type)
             {
-                case "Class": result.Lessons = data.Lessons.Where(l => l.ClassName == value).ToList(); break;
-                case "Teacher": result.Lessons = data.Lessons.Where(l => l.Teacher == value).ToList(); break;
-                case "Room": result.Lessons = data.Lessons.Where(l => l.Room == value).ToList(); break;
+                case "Class": result.Lessons = data.Lessons.Where(l => l.ClassName != null && l.ClassName.Contains(value)).ToList(); break;
+                case "Teacher": result.Lessons = data.Lessons.Where(l => l.Teacher != null && l.Teacher.Contains(value)).ToList(); break;
+                case "Room": result.Lessons = data.Lessons.Where(l => l.Room != null && l.Room.Contains(value)).ToList(); break;
             }
 
             return Json(result);
         }
 
+        private (List<LessonViewModel> Lessons, Dictionary<string, string> HomeroomTeachers) GetTimetableDataFromFile()
+        {
+            const string cacheKey = "TimetableData_AscXML";
+
+            // 1. MEGNÉZZÜK, VAN-E A MEMÓRIÁBAN (Ha igen, azonnal visszaadjuk, villámgyors!)
+            if (_cache.TryGetValue(cacheKey, out (List<LessonViewModel> Lessons, Dictionary<string, string> HomeroomTeachers) cachedData))
+            {
+                return cachedData;
+            }
+
+            // 2. HA NINCS A MEMÓRIÁBAN, AKKOR OLVASSUK BE AZ XML-T
+            var lessons = new List<LessonViewModel>();
+            var hrTeachers = new Dictionary<string, string>();
+
+            string xmlPath1 = Path.Combine(_env.WebRootPath, "uploads", "orarendx.xml");
+            string xmlPath2 = Path.Combine(_env.WebRootPath, "uploads", "timetable.xml");
+            string xmlPath = System.IO.File.Exists(xmlPath1) ? xmlPath1 : xmlPath2;
+
+            if (System.IO.File.Exists(xmlPath))
+            {
+                try
+                {
+                    var doc = XDocument.Load(xmlPath);
+
+                    var subjects = doc.Descendants("subject").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
+                    var teachers = doc.Descendants("teacher").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
+                    var classes = doc.Descendants("class").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
+                    var classrooms = doc.Descendants("classroom").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
+                    var groups = doc.Descendants("group").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
+
+                    foreach (var c in doc.Descendants("class"))
+                    {
+                        var cName = c.Attribute("name")?.Value;
+                        var tId = c.Attribute("teacherid")?.Value;
+                        if (!string.IsNullOrEmpty(cName) && !string.IsNullOrEmpty(tId) && teachers.ContainsKey(tId))
+                        {
+                            hrTeachers[cName] = teachers[tId];
+                        }
+                    }
+
+                    var lessonsDict = doc.Descendants("lesson").ToDictionary(
+                        x => x.Attribute("id")?.Value ?? "",
+                        x => new {
+                            SubjectId = x.Attribute("subjectid")?.Value,
+                            ClassIds = x.Attribute("classids")?.Value,
+                            TeacherIds = x.Attribute("teacherids")?.Value,
+                            GroupIds = x.Attribute("groupids")?.Value
+                        }
+                    );
+
+                    foreach (var card in doc.Descendants("card"))
+                    {
+                        var lessonId = card.Attribute("lessonid")?.Value;
+                        if (string.IsNullOrEmpty(lessonId) || !lessonsDict.ContainsKey(lessonId)) continue;
+
+                        var lessonInfo = lessonsDict[lessonId];
+
+                        var periodStr = card.Attribute("period")?.Value;
+                        int.TryParse(periodStr, out int period);
+
+                        var daysStr = card.Attribute("days")?.Value;
+                        string dayName = GetDayNameFromAsc(daysStr);
+
+                        var roomIds = card.Attribute("classroomids")?.Value ?? "";
+                        string roomName = string.Join(", ", roomIds.Split(',').Where(id => classrooms.ContainsKey(id)).Select(id => classrooms[id]));
+
+                        string subjectName = lessonInfo.SubjectId != null && subjects.ContainsKey(lessonInfo.SubjectId) ? subjects[lessonInfo.SubjectId] : "";
+                        string teacherName = string.Join(", ", (lessonInfo.TeacherIds ?? "").Split(',').Where(id => teachers.ContainsKey(id)).Select(id => teachers[id]));
+                        string className = string.Join(", ", (lessonInfo.ClassIds ?? "").Split(',').Where(id => classes.ContainsKey(id)).Select(id => classes[id]));
+                        string groupName = string.Join(", ", (lessonInfo.GroupIds ?? "").Split(',').Where(id => groups.ContainsKey(id)).Select(id => groups[id]));
+
+                        if (string.IsNullOrEmpty(groupName))
+                        {
+                            groupName = "Teljes osztály";
+                        }
+
+                        if (!string.IsNullOrEmpty(className) && !string.IsNullOrEmpty(subjectName))
+                        {
+                            lessons.Add(new LessonViewModel
+                            {
+                                Day = dayName,
+                                Period = period,
+                                ClassName = className,
+                                Subject = subjectName,
+                                Teacher = teacherName,
+                                Room = roomName,
+                                Group = groupName
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Hiba az aSc XML feldolgozásakor: " + ex.Message);
+                }
+            }
+
+            var result = (lessons, hrTeachers);
+
+            // 3. MIUTÁN BEOLVASTUK, ELMENTJÜK A MEMÓRIÁBA 1 ÓRÁRA!
+            _cache.Set(cacheKey, result, TimeSpan.FromHours(1));
+
+            return result;
+        }
+
+        // Segédfüggvény: Az aSc XML bináris formátumban tárolja a napokat (10000 = Hétfő, 01000 = Kedd...)
+        private string GetDayNameFromAsc(string days)
+        {
+            if (string.IsNullOrEmpty(days)) return "Ismeretlen";
+            if (days.StartsWith("1")) return "Hétfő";
+            if (days.Length > 1 && days[1] == '1') return "Kedd";
+            if (days.Length > 2 && days[2] == '1') return "Szerda";
+            if (days.Length > 3 && days[3] == '1') return "Csütörtök";
+            if (days.Length > 4 && days[4] == '1') return "Péntek";
+            if (days.Length > 5 && days[5] == '1') return "Szombat";
+            if (days.Length > 6 && days[6] == '1') return "Vasárnap";
+            return "Ismeretlen";
+        }
         public IActionResult About()
         {
             return View();

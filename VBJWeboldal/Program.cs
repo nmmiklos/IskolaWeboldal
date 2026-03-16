@@ -26,7 +26,7 @@ namespace VBJWeboldal
             })
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
-
+            builder.Services.AddMemoryCache();
             builder.Services.AddControllersWithViews(options =>
             {
                 // Ez a sor garantálja, hogy minden kattintásnál lefusson a logolónk!
