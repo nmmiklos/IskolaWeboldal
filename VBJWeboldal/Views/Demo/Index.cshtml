@@ -1,0 +1,52 @@
+﻿@model List<string>
+@{
+    ViewData["Title"] = "XSS Sebezhetőség Demó";
+    Layout = "_Layout";
+}
+
+<div class="section" style="max-width: 600px; margin: 40px auto; padding: 20px;">
+
+    <div style="background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <h4 style="margin-top: 0;">⚠️ Izolált Tesztkörnyezet (XSS Sandbox)</h4>
+        <p style="margin-bottom: 0; font-size: 14px;">Amit ide beküldesz, azt a szerver <b>nyers HTML-ként</b> fogja értelmezni. Mindenki csak a saját kommentjeit látja!</p>
+    </div>
+
+    <div style="background: white; border: 1px solid var(--line); border-radius: 8px; padding: 20px; margin-bottom: 20px; min-height: 200px; box-shadow: var(--shadow);">
+        <h3 style="margin-top: 0; border-bottom: 1px solid var(--line); padding-bottom: 10px;">Kommentek:</h3>
+
+        <ul style="list-style: none; padding: 0;">
+            @foreach (var comment in Model)
+            {
+                <li style="padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 5px;">
+                    @Html.Raw(comment)
+                </li>
+            }
+        </ul>
+    </div>
+
+    <form action="/xss-demo/add" method="post" style="margin-bottom: 20px;">
+        <textarea id="commentBox" name="rawComment" rows="4" placeholder="Írd ide a kommentedet (vagy a kártékony kódot)..." style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--line); margin-bottom: 10px; font-family: monospace;"></textarea>
+        <button type="submit" class="btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">Küldés</button>
+    </form>
+
+    <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 8px;">
+        <p style="margin-top: 0; font-weight: bold; font-size: 14px;">Támadási Payload-ok (Kattints a beillesztéshez):</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            <button type="button" onclick="insertPayload('<h1>Szeretem a cicákat!</h1>')" style="padding: 5px 10px; font-size: 12px; cursor: pointer;">Nagy szöveg (HTML)</button>
+            <button type="button" onclick="insertPayload('<style>body { background-color: black !important; color: lime !important; }</style>')" style="padding: 5px 10px; font-size: 12px; cursor: pointer;">Kinézet átírása (CSS)</button>
+            <button type="button" onclick="insertPayload('<script>alert(\'HACKED! Javascript lefutott.\');</script>')" style="padding: 5px 10px; font-size: 12px; cursor: pointer;">Felugró ablak (JS)</button>
+            <button type="button" onclick="insertPayload('<img src=\'x\' onerror=\'alert(\" Kép hiba -> XSS lefutott!\")\' />')" style="padding: 5px 10px; font-size: 12px; cursor: pointer;">Rejtett kód (Képben)</button>
+        </div>
+    </div>
+
+    <form action="/xss-demo/reset" method="post" style="margin-top: 20px; text-align: center;">
+        <button type="submit" style="background: none; border: none; color: red; text-decoration: underline; cursor: pointer;">Túl jól sikerült? Saját Sandbox törlése!</button>
+    </form>
+
+</div>
+
+<script>
+    function insertPayload(payload) {
+        document.getElementById('commentBox').value = payload;
+    }
+</script>
