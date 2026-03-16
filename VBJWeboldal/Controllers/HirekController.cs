@@ -41,7 +41,7 @@ namespace VBJWeboldal.Controllers
         public async Task<IActionResult> Details(int id)
         {
             // Javított lekérdezés a piros hullámvonal ellen:
-            var cikk = await _context.News.FirstOrDefaultAsync(m => m.Id == id);
+            var cikk = await _context.News.Include(n => n.Author).FirstOrDefaultAsync(m => m.Id == id);
 
             if (cikk == null)
             {

@@ -81,7 +81,8 @@ namespace VBJWeboldal.Controllers
                 }
             }
             // --- ELLENŐRZÉS VÉGE ---
-
+            var currentUser = await _userManager.GetUserAsync(User);
+            model.Author = currentUser;
             if (ModelState.IsValid)
             {
                 // Képfeltöltés logikája
