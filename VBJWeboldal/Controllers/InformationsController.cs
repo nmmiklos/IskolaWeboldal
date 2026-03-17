@@ -87,17 +87,24 @@ namespace VBJWeboldal.Controllers
             var data = GetTimetableDataFromFile();
             var result = new TimetableResultViewModel { SelectedValue = value };
 
+            // Biztonsági ellenőrzés: ha a JavaScript null vagy üres értéket küld, adjuk vissza az összes órát
+            if (string.IsNullOrEmpty(value))
+            {
+                result.Lessons = data.Lessons;
+                return Json(result);
+            }
+
             if (type == "Class" && data.HomeroomTeachers.ContainsKey(value))
             {
                 result.HomeroomTeacher = data.HomeroomTeachers[value];
             }
 
-            // Ha például több osztályhoz is be van írva ugyanaz az óra (pl. nyelvi csoportok), a "Contains" miatt mindegyiknél meg fog jelenni!
+            // Kis- és nagybetű független keresés (OrdinalIgnoreCase)
             switch (type)
             {
-                case "Class": result.Lessons = data.Lessons.Where(l => l.ClassName != null && l.ClassName.Contains(value)).ToList(); break;
-                case "Teacher": result.Lessons = data.Lessons.Where(l => l.Teacher != null && l.Teacher.Contains(value)).ToList(); break;
-                case "Room": result.Lessons = data.Lessons.Where(l => l.Room != null && l.Room.Contains(value)).ToList(); break;
+                case "Class": result.Lessons = data.Lessons.Where(l => l.ClassName != null && l.ClassName.Contains(value, StringComparison.OrdinalIgnoreCase)).ToList(); break;
+                case "Teacher": result.Lessons = data.Lessons.Where(l => l.Teacher != null && l.Teacher.Contains(value, StringComparison.OrdinalIgnoreCase)).ToList(); break;
+                case "Room": result.Lessons = data.Lessons.Where(l => l.Room != null && l.Room.Contains(value, StringComparison.OrdinalIgnoreCase)).ToList(); break;
             }
 
             return Json(result);
@@ -105,110 +112,94 @@ namespace VBJWeboldal.Controllers
 
         private (List<LessonViewModel> Lessons, Dictionary<string, string> HomeroomTeachers) GetTimetableDataFromFile()
         {
-            const string cacheKey = "TimetableData_AscXML";
-
-            // 1. MEGNÉZZÜK, VAN-E A MEMÓRIÁBAN (Ha igen, azonnal visszaadjuk, villámgyors!)
-            if (_cache.TryGetValue(cacheKey, out (List<LessonViewModel> Lessons, Dictionary<string, string> HomeroomTeachers) cachedData))
-            {
-                return cachedData;
-            }
-
-            // 2. HA NINCS A MEMÓRIÁBAN, AKKOR OLVASSUK BE AZ XML-T
             var lessons = new List<LessonViewModel>();
             var hrTeachers = new Dictionary<string, string>();
 
-            string xmlPath1 = Path.Combine(_env.WebRootPath, "uploads", "orarendx.xml");
-            string xmlPath2 = Path.Combine(_env.WebRootPath, "uploads", "timetable.xml");
-            string xmlPath = System.IO.File.Exists(xmlPath1) ? xmlPath1 : xmlPath2;
+            string xmlPath = Path.Combine(_env.WebRootPath, "uploads", "orarendx.xml");
 
-            if (System.IO.File.Exists(xmlPath))
+            if (!System.IO.File.Exists(xmlPath))
             {
-                try
-                {
-                    var doc = XDocument.Load(xmlPath);
-
-                    var subjects = doc.Descendants("subject").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
-                    var teachers = doc.Descendants("teacher").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
-                    var classes = doc.Descendants("class").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
-                    var classrooms = doc.Descendants("classroom").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
-                    var groups = doc.Descendants("group").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
-
-                    foreach (var c in doc.Descendants("class"))
-                    {
-                        var cName = c.Attribute("name")?.Value;
-                        var tId = c.Attribute("teacherid")?.Value;
-                        if (!string.IsNullOrEmpty(cName) && !string.IsNullOrEmpty(tId) && teachers.ContainsKey(tId))
-                        {
-                            hrTeachers[cName] = teachers[tId];
-                        }
-                    }
-
-                    var lessonsDict = doc.Descendants("lesson").ToDictionary(
-                        x => x.Attribute("id")?.Value ?? "",
-                        x => new {
-                            SubjectId = x.Attribute("subjectid")?.Value,
-                            ClassIds = x.Attribute("classids")?.Value,
-                            TeacherIds = x.Attribute("teacherids")?.Value,
-                            GroupIds = x.Attribute("groupids")?.Value
-                        }
-                    );
-
-                    foreach (var card in doc.Descendants("card"))
-                    {
-                        var lessonId = card.Attribute("lessonid")?.Value;
-                        if (string.IsNullOrEmpty(lessonId) || !lessonsDict.ContainsKey(lessonId)) continue;
-
-                        var lessonInfo = lessonsDict[lessonId];
-
-                        var periodStr = card.Attribute("period")?.Value;
-                        int.TryParse(periodStr, out int period);
-
-                        var daysStr = card.Attribute("days")?.Value;
-                        string dayName = GetDayNameFromAsc(daysStr);
-
-                        var roomIds = card.Attribute("classroomids")?.Value ?? "";
-                        string roomName = string.Join(", ", roomIds.Split(',').Where(id => classrooms.ContainsKey(id)).Select(id => classrooms[id]));
-
-                        string subjectName = lessonInfo.SubjectId != null && subjects.ContainsKey(lessonInfo.SubjectId) ? subjects[lessonInfo.SubjectId] : "";
-                        string teacherName = string.Join(", ", (lessonInfo.TeacherIds ?? "").Split(',').Where(id => teachers.ContainsKey(id)).Select(id => teachers[id]));
-                        string className = string.Join(", ", (lessonInfo.ClassIds ?? "").Split(',').Where(id => classes.ContainsKey(id)).Select(id => classes[id]));
-                        string groupName = string.Join(", ", (lessonInfo.GroupIds ?? "").Split(',').Where(id => groups.ContainsKey(id)).Select(id => groups[id]));
-
-                        if (string.IsNullOrEmpty(groupName))
-                        {
-                            groupName = "Teljes osztály";
-                        }
-
-                        if (!string.IsNullOrEmpty(className) && !string.IsNullOrEmpty(subjectName))
-                        {
-                            lessons.Add(new LessonViewModel
-                            {
-                                Day = dayName,
-                                Period = period,
-                                ClassName = className,
-                                Subject = subjectName,
-                                Teacher = teacherName,
-                                Room = roomName,
-                                Group = groupName
-                            });
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Hiba az aSc XML feldolgozásakor: " + ex.Message);
-                }
+                Console.WriteLine($"[HIBA] Nem található az órarend fájl ezen a helyen: {xmlPath}");
+                return (lessons, hrTeachers);
             }
 
-            var result = (lessons, hrTeachers);
+            try
+            {
+                var doc = XDocument.Load(xmlPath);
 
-            // 3. MIUTÁN BEOLVASTUK, ELMENTJÜK A MEMÓRIÁBA 1 ÓRÁRA!
-            _cache.Set(cacheKey, result, TimeSpan.FromHours(1));
+                var subjects = doc.Descendants("subject").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
+                var teachers = doc.Descendants("teacher").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
+                var classes = doc.Descendants("class").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
+                var classrooms = doc.Descendants("classroom").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
+                var groups = doc.Descendants("group").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
 
-            return result;
+                foreach (var c in doc.Descendants("class"))
+                {
+                    var cName = c.Attribute("name")?.Value;
+                    var tId = c.Attribute("teacherid")?.Value;
+                    if (!string.IsNullOrEmpty(cName) && !string.IsNullOrEmpty(tId) && teachers.ContainsKey(tId))
+                    {
+                        hrTeachers[cName] = teachers[tId];
+                    }
+                }
+
+                var lessonsDict = doc.Descendants("lesson").ToDictionary(
+                    x => x.Attribute("id")?.Value ?? "",
+                    x => new {
+                        SubjectId = x.Attribute("subjectid")?.Value,
+                        ClassIds = x.Attribute("classids")?.Value,
+                        TeacherIds = x.Attribute("teacherids")?.Value,
+                        GroupIds = x.Attribute("groupids")?.Value
+                    }
+                );
+
+                foreach (var card in doc.Descendants("card"))
+                {
+                    var lessonId = card.Attribute("lessonid")?.Value;
+                    if (string.IsNullOrEmpty(lessonId) || !lessonsDict.ContainsKey(lessonId)) continue;
+
+                    var lessonInfo = lessonsDict[lessonId];
+                    var periodStr = card.Attribute("period")?.Value;
+                    int.TryParse(periodStr, out int period);
+                    var daysStr = card.Attribute("days")?.Value;
+                    string dayName = GetDayNameFromAsc(daysStr);
+
+                    var roomIds = card.Attribute("classroomids")?.Value ?? "";
+                    string roomName = string.Join(", ", roomIds.Split(',').Where(id => classrooms.ContainsKey(id)).Select(id => classrooms[id]));
+
+                    string subjectName = lessonInfo.SubjectId != null && subjects.ContainsKey(lessonInfo.SubjectId) ? subjects[lessonInfo.SubjectId] : "";
+                    string teacherName = string.Join(", ", (lessonInfo.TeacherIds ?? "").Split(',').Where(id => teachers.ContainsKey(id)).Select(id => teachers[id]));
+                    string className = string.Join(", ", (lessonInfo.ClassIds ?? "").Split(',').Where(id => classes.ContainsKey(id)).Select(id => classes[id]));
+                    string groupName = string.Join(", ", (lessonInfo.GroupIds ?? "").Split(',').Where(id => groups.ContainsKey(id)).Select(id => groups[id]));
+
+                    if (string.IsNullOrEmpty(groupName)) groupName = "Teljes osztály";
+
+                    if (!string.IsNullOrEmpty(className) && !string.IsNullOrEmpty(subjectName))
+                    {
+                        lessons.Add(new LessonViewModel
+                        {
+                            Day = dayName,
+                            Period = period,
+                            ClassName = className,
+                            Subject = subjectName,
+                            Teacher = teacherName,
+                            Room = roomName,
+                            Group = groupName
+                        });
+                    }
+                }
+
+                // SIKERES BEOLVASÁS KIÍRÁSA A KONZOLBA!
+                Console.WriteLine($"[ÓRAREND OK] aSc XML beolvasva! Talált tanórák száma: {lessons.Count}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[HIBA] aSc XML feldolgozásakor: " + ex.Message);
+            }
+
+            return (lessons, hrTeachers);
         }
 
-        // Segédfüggvény: Az aSc XML bináris formátumban tárolja a napokat (10000 = Hétfő, 01000 = Kedd...)
         private string GetDayNameFromAsc(string days)
         {
             if (string.IsNullOrEmpty(days)) return "Ismeretlen";
