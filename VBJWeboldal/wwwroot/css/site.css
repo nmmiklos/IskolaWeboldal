@@ -26,6 +26,7 @@
 
 * {
     box-sizing: border-box;
+    min-width: 0;
 }
 html {
     scroll-behavior: smooth;
@@ -50,6 +51,11 @@ a {
     color: inherit;
     text-decoration: none;
 }
+img, video, canvas {
+    max-width: 100%;
+    height: auto;
+}
+
 
 button {
     font: inherit;
@@ -460,10 +466,10 @@ button {
 
     .hero-search:focus {
         background: rgba(255, 255, 255, 0.2);
-        border-color: var(--accent); 
+        border-color: var(--accent);
         box-shadow: 0 0 0 4px rgba(245, 200, 76, 0.15), 0 12px 24px rgba(0, 0, 0, 0.2);
-        width: 105%; 
-        transform: translateX(-2.5%);
+        width: 100%;
+        transform: none;
     }
 
         .hero-search:focus + .search-icon {
@@ -1197,4 +1203,49 @@ body,.frame,.section,.box,.card {
 
 .hero-illustration-gimi {
     background: url('/rootimages/gimi-index.jpg') center/cover no-repeat;
+}
+
+@media (max-width: 900px) {
+    .nav {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .brand {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .nav-actions {
+        width: 100%;
+        justify-content: center;
+    }
+}
+.grid {
+    grid-template-columns: 1fr 340px;
+}
+.grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+}
+
+@media (max-width: 1100px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+.news-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.hero {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.card, .box, .section {
+    width: 100%;
+    max-width: 100%;
+}
+.szak-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
