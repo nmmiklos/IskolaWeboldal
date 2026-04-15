@@ -1,12 +1,103 @@
-﻿@{
-    ViewData["Title"] = "Iskolánkról";
-}
+﻿<section class="section" style="max-width: 1100px; margin: 0 auto;">
 
-<div class="box">
-    <div class="box-h">
-        <h4>Itt lesznek iskolankrol szolo adatok</h4>
+    <div class="section-h" style="font-size:30px">
+        <h3>Igazgatói köszöntő</h3>
     </div>
-    <div class="box-body">
-        <!-- reuse .event blocks -->
+
+    <div class="koszonto-layout">
+
+        <div class="koszonto-card">
+
+            <div class="koszonto-text">
+                <p>
+                    Szeretettel köszöntöm Önt a Vak Bottyán János Katolikus Műszaki és
+                    Közgazdasági Technikum, Gimnázium és Kollégium honlapján.
+                </p>
+
+                <p>
+                    Iskolánk magas színvonalú képzései a garantált továbbtanulás
+                    és a biztos elhelyezkedés lehetőségét kínálják.
+                </p>
+
+                <p>
+                    Stabil értékrend, 21. századi körülmények, munkával és tanulással
+                    elért eredmények.
+                </p>
+
+                <p class="koszonto-highlight">
+                    A Bottyán a biztos pont és a jó megoldás!
+                </p>
+
+                <div class="koszonto-sign">
+                    <strong>P. Igazgató</strong>
+                </div>
+            </div>
+
+            <div class="koszonto-image">
+                <img src="~/rootimages/igazgato.jpg" asp-append-version="true">
+            </div>
+
+        </div>
+
+        <div class="info-cards">
+
+            <div class="info-cards">
+
+                <a asp-controller="Informations" asp-action="Page" asp-route-slug="bemutatkozo-film" class="info-card">
+                    Bemutatkozó filmünk
+                </a>
+
+                <a asp-controller="Informations" asp-action="Page" asp-route-slug="nevadonk" class="info-card">
+                    Névadónk
+                </a>
+
+                <a asp-controller="Informations" asp-action="Page" asp-route-slug="vedoszentunk" class="info-card">
+                    Védőszentünk
+                </a>
+
+                <a asp-controller="Informations" asp-action="Page" asp-route-slug="tortenet" class="info-card">
+                    Az iskola története
+                </a>
+
+                <a asp-controller="Informations" asp-action="Page" asp-route-slug="fenntarto" class="info-card">
+                    Fenntartónk
+                </a>
+
+                <a asp-controller="Informations" asp-action="Page" asp-route-slug="alapitvany" class="info-card">
+                    Alapítvány
+                </a>
+
+                <a asp-controller="Informations" asp-action="Page" asp-route-slug="kollegium" class="info-card">
+                    Kollégium
+                </a>
+
+                <a asp-controller="Informations" asp-action="Page" asp-route-slug="erseki-jutalom" class="info-card">
+                    Érseki jutalom
+                </a>
+
+                <a asp-controller="Informations" asp-action="Page" asp-route-slug="vak-bottyan-dij" class="info-card">
+                    Vak Bottyán-díj
+                </a>
+
+                <a asp-controller="Informations" asp-action="Page" asp-route-slug="ev-diakja" class="info-card">
+                    Az év diákja
+                </a>
+
+                <a asp-controller="Informations" asp-action="Page" asp-route-slug="szakmai-dij" class="info-card">
+                    Szakmai díj
+                </a>
+
+                <a asp-controller="Informations" asp-action="Page" asp-route-slug="ev-sportoloja" class="info-card">
+                    Év sportolója díj
+                </a>
+
+                <a asp-controller="Informations" asp-action="Page" asp-route-slug="szivessegbank" class="info-card">
+                    Szívességbank
+                </a>
+
+            </div>
+
+        </div>
+
     </div>
-</div>
+</section>

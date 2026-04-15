@@ -15,6 +15,7 @@ using System;
 
 namespace VBJWeboldal.Controllers
 {
+    [Route("informaciok")]
     public class InformationsController : Controller
     {
         private readonly IWebHostEnvironment _env;
@@ -212,10 +213,38 @@ namespace VBJWeboldal.Controllers
             if (days.Length > 6 && days[6] == '1') return "Vasárnap";
             return "Ismeretlen";
         }
+
+        [HttpGet("{slug}")]
+        public IActionResult Page(string slug)
+        {
+            var validPages = new Dictionary<string, string>()
+            {
+                ["bemutatkozo-film"] = "BemutatkozoFilm",
+                ["nevadonk"] = "Nevadonk",
+                ["vedoszentunk"] = "Vedoszentunk",
+                ["tortenet"] = "Tortenet",
+                ["fenntarto"] = "Fenntarto",
+                ["alapitvany"] = "Alapitvany",
+                ["kollegium"] = "Kollegium",
+                ["erseki-jutalom"] = "ErsekiJutalom",
+                ["vak-bottyan-dij"] = "VakBottyanDij",
+                ["ev-diakja"] = "EvDiakja",
+                ["szakmai-dij"] = "SzakmaiDij",
+                ["ev-sportoloja"] = "EvSportoloja",
+                ["szivessegbank"] = "Szivessegbank"
+            };
+
+            if (!validPages.ContainsKey(slug))
+                return NotFound();
+
+            return View(validPages[slug]);
+        }
+        [HttpGet("about")]
         public IActionResult About()
         {
             return View();
         }
+        [HttpGet("cafetaria")]
         public IActionResult Cafeteria()
         {
             return View();
