@@ -10,6 +10,8 @@ namespace VBJWeboldal
     {
         public static async Task Main(string[] args)
         {
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
             var builder = WebApplication.CreateBuilder(args);
 
             // 1. Adatbázis kapcsolat konfigurálása

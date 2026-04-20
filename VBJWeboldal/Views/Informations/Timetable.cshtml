@@ -45,7 +45,8 @@
         </div>
     </div>
 </div>
-
+<input type="hidden" id="optionsUrl" value="@Url.Action("GetTimetableOptions", "Informations")" />
+<input type="hidden" id="dataUrl" value="@Url.Action("GetTimetableData", "Informations")" />
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -55,15 +56,19 @@
             const header = document.getElementById('ttHeader');
             const homeroom = document.getElementById('ttHomeroom');
             const ttBody = document.getElementById('ttBody');
+            const optionsUrl = document.getElementById('optionsUrl').value;
+            const dataUrl = document.getElementById('dataUrl').value;
+
+
+
+            loadOptions();
 
             typeSelect.addEventListener('change', loadOptions);
             valueSelect.addEventListener('change', loadTimetable);
 
-            loadOptions();
-
             function loadOptions() {
                 const type = typeSelect.value;
-                fetch(`/Informations/GetTimetableOptions?type=${type}`)
+                fetch(`${optionsUrl}?type=${type}`)
                     .then(res => res.json())
                     .then(data => {
                         valueSelect.innerHTML = '';
@@ -86,7 +91,7 @@
                 const val = valueSelect.value;
                 if(!val || val.startsWith("Betöltés")) return;
 
-                fetch(`/Informations/GetTimetableData?type=${type}&value=${val}`)
+                fetch(`${dataUrl}?type=${type}&value=${val}`)
                     .then(res => res.json())
                     .then(data => {
                         display.style.display = 'block';

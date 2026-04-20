@@ -15,7 +15,7 @@ using System;
 
 namespace VBJWeboldal.Controllers
 {
-    [Route("informaciok")]
+    //[Route("informaciok")]
     public class InformationsController : Controller
     {
         private readonly IWebHostEnvironment _env;
@@ -80,9 +80,57 @@ namespace VBJWeboldal.Controllers
         }
 
         // --- ÓRAREND FUNKCIÓK ---
+        [HttpGet("debug-timetable")]
+        public IActionResult DebugTimetable()
+        {
+            string xmlPath = Path.Combine(_env.WebRootPath, "uploads", "timetable.xml");
+            bool exists = System.IO.File.Exists(xmlPath);
+
+            var files = Directory.GetFiles(Path.Combine(_env.WebRootPath, "uploads"))
+                                 .Select(f => Path.GetFileName(f))
+                                 .ToList();
+
+            return Json(new
+            {
+                expectedPath = xmlPath,
+                fileExists = exists,
+                allFilesInUploads = files
+            });
+        }
+        [HttpGet("orarend")]
         public IActionResult Timetable() => View();
 
-        [HttpGet]
+        [HttpGet("GetTimetableOptions")]
+        public IActionResult GetTimetableOptions(string type)
+        {
+            var data = GetTimetableDataFromFile();
+            List<string> options = type switch
+            {
+                "Teacher" => data.Lessons
+                    .Where(l => !string.IsNullOrEmpty(l.Teacher))
+                    .SelectMany(l => l.Teacher.Split(','))
+                    .Select(t => t.Trim())
+                    .Distinct()
+                    .OrderBy(t => t)
+                    .ToList(),
+                "Room" => data.Lessons
+                    .Where(l => !string.IsNullOrEmpty(l.Room))
+                    .SelectMany(l => l.Room.Split(','))
+                    .Select(r => r.Trim())
+                    .Distinct()
+                    .OrderBy(r => r)
+                    .ToList(),
+                _ => data.Lessons
+                    .Where(l => !string.IsNullOrEmpty(l.ClassName))
+                    .SelectMany(l => l.ClassName.Split(','))
+                    .Select(c => c.Trim())
+                    .Distinct()
+                    .OrderBy(c => c)
+                    .ToList()
+            };
+            return Json(options);
+        }
+        [HttpGet("GetTimetableData")]
         public IActionResult GetTimetableData(string type, string value)
         {
             var data = GetTimetableDataFromFile();
@@ -116,7 +164,7 @@ namespace VBJWeboldal.Controllers
             var lessons = new List<LessonViewModel>();
             var hrTeachers = new Dictionary<string, string>();
 
-            string xmlPath = Path.Combine(_env.WebRootPath, "uploads", "orarendx.xml");
+            string xmlPath = Path.Combine(_env.WebRootPath, "uploads", "timetable.xml");
 
             if (!System.IO.File.Exists(xmlPath))
             {
@@ -126,7 +174,8 @@ namespace VBJWeboldal.Controllers
 
             try
             {
-                var doc = XDocument.Load(xmlPath);
+                using var reader = new StreamReader(xmlPath, System.Text.Encoding.GetEncoding("windows-1250"));
+                var doc = XDocument.Load(reader);
 
                 var subjects = doc.Descendants("subject").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
                 var teachers = doc.Descendants("teacher").ToDictionary(x => x.Attribute("id")?.Value ?? "", x => x.Attribute("name")?.Value ?? "");
@@ -214,12 +263,12 @@ namespace VBJWeboldal.Controllers
             return "Ismeretlen";
         }
 
-        [HttpGet("{slug}")]
+        [HttpGet("{slug:regex(^(bemutatkozo-film|nevadonk|vedoszentunk|tortenet|fenntarto|alapitvany|kollegium|erseki-jutalom|vak-bottyan-dij|ev-diakja|szakmai-dij|ev-sportoloja|szivessegbank)$)}")]
         public IActionResult Page(string slug)
         {
             var validPages = new Dictionary<string, string>()
             {
-                ["bemutatkozo-film"] = "BemutatkozoFilm",
+                ["bemutatkozo-film"] = "bemutatkozo-film",
                 ["nevadonk"] = "Nevadonk",
                 ["vedoszentunk"] = "Vedoszentunk",
                 ["tortenet"] = "Tortenet",
@@ -227,11 +276,11 @@ namespace VBJWeboldal.Controllers
                 ["alapitvany"] = "Alapitvany",
                 ["kollegium"] = "Kollegium",
                 ["erseki-jutalom"] = "ErsekiJutalom",
-                ["vak-bottyan-dij"] = "VakBottyanDij",
-                ["ev-diakja"] = "EvDiakja",
-                ["szakmai-dij"] = "SzakmaiDij",
-                ["ev-sportoloja"] = "EvSportoloja",
-                ["szivessegbank"] = "Szivessegbank"
+                ["vak-bottyan-dij"] = "vak-bottyan-dij",
+                ["ev-diakja"] = "ev-diakja",
+                ["szakmai-dij"] = "szakmai-dij",
+                ["ev-sportoloja"] = "ev-sportoloja",
+                ["szivessegbank"] = "szivessegbank"
             };
 
             if (!validPages.ContainsKey(slug))
